@@ -1,0 +1,212 @@
+@{
+    ViewData["Title"] = "ホーム";
+}
+
+<div class="row">
+    <div class="col-md-12">
+        <h1 class="text-center mb-4">診断シナリオテスター</h1>
+        <div class="alert alert-info">
+            <strong>注意:</strong> これらのシナリオは開発・テスト環境でのみ実行してください。本番環境では絶対に実行しないでください。
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- デッドロックシナリオ -->
+    <div class="col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header bg-danger text-white">
+                <h5 class="mb-0">🔒 デッドロック</h5>
+            </div>
+            <div class="card-body">
+                <p class="card-text">デッドロック状況をシミュレートします。複数のスレッドが互いにロックを待機する状況を作成します。</p>
+                <button class="btn btn-danger" onclick="executeScenario('/api/DiagScenario/deadlock', 'deadlock-result')">
+                    デッドロック実行
+                </button>
+                <div id="deadlock-result" class="mt-3"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- メモリスパイクシナリオ -->
+    <div class="col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header bg-warning text-dark">
+                <h5 class="mb-0">📈 メモリスパイク</h5>
+            </div>
+            <div class="card-body">
+                <p class="card-text">指定した秒数間メモリ使用量を急激に増加させます。</p>
+                <div class="input-group mb-2">
+                    <input type="number" class="form-control" id="memspike-seconds" placeholder="秒数" value="10" min="1" max="60">
+                    <span class="input-group-text">秒</span>
+                </div>
+                <button class="btn btn-warning" onclick="executeMemSpike()">
+                    メモリスパイク実行
+                </button>
+                <div id="memspike-result" class="mt-3"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- メモリリークシナリオ -->
+    <div class="col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header bg-warning text-dark">
+                <h5 class="mb-0">🔄 メモリリーク</h5>
+            </div>
+            <div class="card-body">
+                <p class="card-text">指定したサイズ分のメモリリークをシミュレートします。</p>
+                <div class="input-group mb-2">
+                    <input type="number" class="form-control" id="memleak-kb" placeholder="KB数" value="1024" min="1" max="10240">
+                    <span class="input-group-text">KB</span>
+                </div>
+                <button class="btn btn-warning" onclick="executeMemLeak()">
+                    メモリリーク実行
+                </button>
+                <div id="memleak-result" class="mt-3"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 例外シナリオ -->
+    <div class="col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header bg-danger text-white">
+                <h5 class="mb-0">💥 例外発生</h5>
+            </div>
+            <div class="card-body">
+                <p class="card-text">意図的に例外を発生させて、エラーハンドリングをテストします。</p>
+                <button class="btn btn-danger" onclick="executeScenario('/api/DiagScenario/exception', 'exception-result')">
+                    例外実行
+                </button>
+                <div id="exception-result" class="mt-3"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 高CPU使用率シナリオ -->
+    <div class="col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0">🔥 高CPU使用率</h5>
+            </div>
+            <div class="card-body">
+                <p class="card-text">指定したミリ秒間CPU使用率を100%近くまで上げます。</p>
+                <div class="input-group mb-2">
+                    <input type="number" class="form-control" id="highcpu-ms" placeholder="ミリ秒" value="5000" min="100" max="30000">
+                    <span class="input-group-text">ms</span>
+                </div>
+                <button class="btn btn-info" onclick="executeHighCpu()">
+                    高CPU実行
+                </button>
+                <div id="highcpu-result" class="mt-3"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Task.Wait()シナリオ -->
+    <div class="col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header bg-secondary text-white">
+                <h5 class="mb-0">⏳ Task.Wait()</h5>
+            </div>
+            <div class="card-body">
+                <p class="card-text">Task.Wait()を使用してスレッドプールの飢餓状態をシミュレートします。</p>
+                <button class="btn btn-secondary" onclick="executeScenario('/api/DiagScenario/taskwait', 'taskwait-result')">
+                    Task.Wait()実行
+                </button>
+                <div id="taskwait-result" class="mt-3"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Task Sleep Wait シナリオ -->
+    <div class="col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header bg-secondary text-white">
+                <h5 class="mb-0">😴 Task Sleep Wait</h5>
+            </div>
+            <div class="card-body">
+                <p class="card-text">Thread.Sleep()を使用してタスクの完了を待機する非効率的な方法をシミュレートします。</p>
+                <button class="btn btn-secondary" onclick="executeScenario('/api/DiagScenario/tasksleepwait', 'tasksleepwait-result')">
+                    Task Sleep Wait実行
+                </button>
+                <div id="tasksleepwait-result" class="mt-3"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Task Async Wait シナリオ -->
+    <div class="col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0">✅ Task Async Wait (正常)</h5>
+            </div>
+            <div class="card-body">
+                <p class="card-text">awaitキーワードを使用した正しい非同期処理の例を実行します。</p>
+                <button class="btn btn-success" onclick="executeScenario('/api/DiagScenario/taskasyncwait', 'taskasyncwait-result')">
+                    Task Async Wait実行
+                </button>
+                <div id="taskasyncwait-result" class="mt-3"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // 基本的なシナリオ実行関数
+        async function executeScenario(url, resultElementId) {
+            const resultElement = document.getElementById(resultElementId);
+            resultElement.innerHTML = '<div class="spinner-border spinner-border-sm" role="status"><span class="visually-hidden">Loading...</span></div> 実行中...';
+            
+            try {
+                const response = await fetch(url, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+                
+                if (response.ok) {
+                    const result = await response.text();
+                    resultElement.innerHTML = `<div class="alert alert-success">✅ ${result}</div>`;
+                } else {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+            } catch (error) {
+                resultElement.innerHTML = `<div class="alert alert-danger">❌ エラー: ${error.message}</div>`;
+            }
+        }
+
+        // メモリスパイク実行
+        async function executeMemSpike() {
+            const seconds = document.getElementById('memspike-seconds').value;
+            if (!seconds || seconds < 1) {
+                alert('有効な秒数を入力してください (1-60)');
+                return;
+            }
+            await executeScenario(`/api/DiagScenario/memspike/${seconds}`, 'memspike-result');
+        }
+
+        // メモリリーク実行
+        async function executeMemLeak() {
+            const kb = document.getElementById('memleak-kb').value;
+            if (!kb || kb < 1) {
+                alert('有効なKB数を入力してください (1-10240)');
+                return;
+            }
+            await executeScenario(`/api/DiagScenario/memleak/${kb}`, 'memleak-result');
+        }
+
+        // 高CPU実行
+        async function executeHighCpu() {
+            const ms = document.getElementById('highcpu-ms').value;
+            if (!ms || ms < 100) {
+                alert('有効なミリ秒数を入力してください (100-30000)');
+                return;
+            }
+            await executeScenario(`/api/DiagScenario/highcpu/${ms}`, 'highcpu-result');
+        }
+    </script>
+}
