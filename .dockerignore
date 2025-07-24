@@ -1,0 +1,35 @@
+# Files and directories to exclude during Docker build
+
+# .NET related
+**/bin/
+**/obj/
+*.user
+*.suo
+*.cache
+.vs/
+
+# IDE related
+.vscode/
+.idea/
+
+# OS related
+.DS_Store
+Thumbs.db
+
+# Git related
+.git/
+.gitignore
+.gitattributes
+
+# Docker related
+Dockerfile*
+docker-compose*
+.dockerignore
+
+# Log files
+*.log
+**/logs/
+
+# Other temporary files
+*.tmp
+*.temp
