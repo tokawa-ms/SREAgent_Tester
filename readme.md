@@ -1,7 +1,7 @@
 # SRE Agent Tester
 
-このサンプルデバッグターゲットは、.NET 8.0 で構築されたシンプルなアプリケーションです。
-SRE Agent をテストするための複数の障害モードをシミュレーションします。
+このサンプルアプリケーションは、.NET 8.0 で構築されたシンプルなアプリケーションです。
+SRE Agent をテストするための複数の障害モードをシミュレーションするための UI と API を提供します。
 
 ## ソースコードの取得
 
@@ -36,6 +36,17 @@ docker run -p 8080:80 diagnostic-scenarios
 docker-compose up -d
 ```
 
+## Azure App Service での実行
+
+Azure App Service での実行も可能です。Azure Portal から新しい Web アプリを作成し、ソースコードをデプロイしてください。
+
+## 利用可能な Web UI
+
+このアプリケーションには、障害シナリオをトリガーするための Web UI が用意されています。ブラウザで以下の URL にアクセスしてください：
+
+````
+http://localhost:5000/
+
 ## 利用可能なエンドポイント
 
 このアプリケーションは特定の URL にアクセスすることで様々な問題のあるシナリオをトリガーします。
@@ -44,7 +55,7 @@ docker-compose up -d
 
 ```http
 http://localhost:5000/api/diagscenario/deadlock
-```
+````
 
 このメソッドはターゲットをハングアップさせ、多くのスレッドを蓄積させます。
 
@@ -103,3 +114,9 @@ http://localhost:5000/api/diagscenario/taskasyncwait
 ```
 
 await キーワードを使用した正しい非同期パターンの実装例です。
+
+## 参考文献・参照実装
+
+このアプリケーションの実装にあたり、以下の文献や実装を参照し、引用・改変しました。
+
+[Diagnostic scenarios sample debug target](https://github.com/dotnet/samples/tree/main/core/diagnostics/DiagnosticScenarios)（© Microsoft Corporation.）を改変して実装。
