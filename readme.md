@@ -1,55 +1,55 @@
 # SRE Agent Tester
 
-.NET 8 / ASP.NET Core �ō\�z�����f�f�V�i���I�W�ł��B`/Home/Index` ���瑦�����s�V�i���I�A`/Home/ToggleScenarios` ����o�b�N�O���E���h�œ���������p���I�ȃe�X�g�V�i���I�𐧌䂵�ASRE Agent �⃂�j�^�����O�p�C�v���C�������S�Ɍ��؂ł��܂��B
+.NET 8 / ASP.NET Core で構築した診断シナリオ集です。`/Home/Index` から即時実行シナリオ、`/Home/ToggleScenarios` からバックグラウンドで動き続ける継続的なテストシナリオを制御し、SRE Agent やモニタリングパイプラインを安全に検証できます。
 
-## �Z�b�g�A�b�v
-1. ���|�W�g�����N���[�����A�v���W�F�N�g���[�g (`SREAgent_Tester`) �ֈړ����܂��B
-2. �ˑ��֌W�𕜌����r���h���܂��B
+## セットアップ
+1. リポジトリをクローンし、プロジェクトルート (`SREAgent_Tester`) へ移動します。
+2. 依存関係を復元しビルドします。
    ```bash
    dotnet restore
    dotnet build
    ```
-3. �A�v�����N�����܂��B
+3. アプリを起動します。
    ```bash
    dotnet run --project DiagnosticScenarios/DiagnosticScenarios.csproj
    ```
-4. �u���E�U�[�� `http://localhost:5000/` ���J���A�ړI�̃y�[�W�ɃA�N�Z�X���܂��B
+4. ブラウザーで `http://localhost:5000/` を開き、目的のページにアクセスします。
 
-Docker / Azure App Service �Ȃǂ̃z�X�e�B���O���]���ʂ藘�p�\�ł��B
+Docker / Azure App Service などのホスティングも従来通り利用可能です。
 
-### Docker �R���e�i�ł̎��s
-1. ���[�g�� Docker �C���[�W���r���h���܂��B
+### Docker コンテナでの実行
+1. ルートで Docker イメージをビルドします。
    ```bash
    docker build -t sre-agent-tester .
    ```
-2. �|�[�g���z�X�g�Ɍ��J���ċN�����܂� (��: 8080)�B
+2. ポートをホストに公開して起動します (例: 8080)。
    ```bash
    docker run --rm -p 8080:8080 -e ASPNETCORE_URLS=http://+:8080 sre-agent-tester
    ```
-   - HTTPS ���s�v�Ȃ��� `ASPNETCORE_URLS` �� HTTP �|�[�g�̂݌��J�B
-   - ����� `appsettings.Development.json` ���g���ꍇ�� `--env ASPNETCORE_ENVIRONMENT=Development` ��t�^���܂��B
-3. �����R���e�i��ˑ��T�[�r�X������Ȃ� `docker-compose up -d` �œ����� Compose ��`�𗘗p�ł��܂��B
+   - HTTPS が不要なため `ASPNETCORE_URLS` で HTTP ポートのみ公開。
+   - 既定の `appsettings.Development.json` を使う場合は `--env ASPNETCORE_ENVIRONMENT=Development` を付与します。
+3. 複数コンテナや依存サービスがあるなら `docker-compose up -d` で同梱の Compose 定義を利用できます。
 
-��~����ۂ� `Ctrl+C` �ŏI�����邩�A�ʃ^�[�~�i������ `docker stop <CONTAINER_ID>` �����s���Ă��������B
+停止する際は `Ctrl+C` で終了するか、別ターミナルから `docker stop <CONTAINER_ID>` を実行してください。
 
-## UI �ƃV�i���I
-- `Home/Index` : ��O�o�[�X�g�A�������X�p�C�N�ACPU �����ׂȂǑ������΂��� API ���Ăяo���f���J�[�h�B
-- `Home/ToggleScenarios` : ProbabilisticFailure / CpuSpike / MemoryLeak / ProbabilisticLatency ���g�O���ŊJ�n���A�I���\�莞������s��Ԃ��m�F�ł��܂��B
+## UI とシナリオ
+- `Home/Index` : 例外バースト、メモリスパイク、CPU 高負荷など即時発火する API を呼び出すデモカード。
+- `Home/ToggleScenarios` : ProbabilisticFailure / CpuSpike / MemoryLeak / ProbabilisticLatency をトグルで開始し、終了予定時刻や実行状態を確認できます。
 
-�e�V�i���I�� API�A�p�����[�^�[�A���p��̒��ӂ� `docs/scenarios.md` �Ɉꗗ�����Ă��܂��B�^�p�O�ɕK���m�F���Ă��������B
+各シナリオの API、パラメーター、利用上の注意は `docs/scenarios.md` に一覧化しています。運用前に必ず確認してください。
 
-## ��ȃR�[�h
-- `DiagnosticScenarios/Controllers/DiagScenarioController.cs`
-  - �������s�V�i���I API�B���������[�N��X�p�C�N�������X���b�h���S�Ƀ��t�@�N�^�����O�ς݁B
+## 主なコード
+- `DiagnosticScenarios/Controllers/DiagnosticScenarios.cs`
+  - DiagScenarioController - 即時実行シナリオ API。メモリリークやスパイク処理をスレッド安全にリファクタリング済み。
 - `DiagnosticScenarios/Controllers/ScenarioToggleController.cs`
-  - �o�b�N�O���E���h���s�V�i���I�̊J�n / ��~�G���h�|�C���g�B
+  - バックグラウンド実行シナリオの開始 / 停止エンドポイント。
 - `DiagnosticScenarios/Services/ScenarioToggleService.cs`
-  - �e�g�O���V�i���I�̃��[�J�[���[�v�E��ԊǗ��������B
+  - 各トグルシナリオのワーカーループ・状態管理を実装。
 
-## ���ӎ���
-- ���ׂăe�X�g / ���؊���p�ł��B**�{�Ԋ��ł͐�΂Ɏ��s���Ȃ��ł��������B**
-- �z��ȏ�̕��ׂ�����邽�߁A�p�����[�^�[�͊��� CPU / �������ɉ����Ē������Ă��������B
-- ���s���� `dotnet-counters`, `dotnet-trace` �ȂǂŃ����^�C���w�W���̎悷��ƌ��ʓI�ł��B
+## 注意事項
+- すべてテスト / 検証環境専用です。**本番環境では絶対に実行しないでください。**
+- 想定以上の負荷を避けるため、パラメーターは環境の CPU / メモリに応じて調整してください。
+- 実行中は `dotnet-counters`, `dotnet-trace` などでランタイム指標を採取すると効果的です。
 
-## �Q�l
-���̃A�v���� [Diagnostic scenarios sample debug target](https://github.com/dotnet/samples/tree/main/core/diagnostics/DiagnosticScenarios) ���x�[�X�ɃJ�X�^�}�C�Y���Ă��܂��B
+## 参考
+このアプリは [Diagnostic scenarios sample debug target](https://github.com/dotnet/samples/tree/main/core/diagnostics/DiagnosticScenarios) をベースにカスタマイズしています。
