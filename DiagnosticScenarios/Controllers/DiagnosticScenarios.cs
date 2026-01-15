@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using System.Threading;
 
 namespace testwebapi.Controllers
@@ -16,6 +17,12 @@ namespace testwebapi.Controllers
         object o2 = new object();
 
         private static Processor p = new Processor();
+        private readonly ILogger<DiagScenarioController> _logger;
+
+        public DiagScenarioController(ILogger<DiagScenarioController> logger)
+        {
+            _logger = logger;
+        }
 
         [HttpGet]
         [Route("deadlock/")]
@@ -63,6 +70,11 @@ namespace testwebapi.Controllers
         [Route("memspike/{seconds}")]
         public ActionResult<string> memspike(int seconds)
         {
+            if (seconds < 1 || seconds > 1800)
+            {
+                return BadRequest("seconds must be between 1 and 1800.");
+            }
+
             var watch = new Stopwatch();
             watch.Start();
 
@@ -113,6 +125,119 @@ namespace testwebapi.Controllers
         public ActionResult<string> exception()
         {
             throw new Exception("bad, bad code");
+        }
+
+        [HttpGet]
+        [Route("exceptionburst/{durationSeconds}/{exceptionsPerSecond}")]
+        public async Task<ActionResult<string>> ExceptionBurst(int durationSeconds, int exceptionsPerSecond)
+        {
+            if (durationSeconds < 1 || durationSeconds > 1800)
+            {
+                return BadRequest("durationSeconds must be between 1 and 1800.");
+            }
+
+            if (exceptionsPerSecond < 1 || exceptionsPerSecond > 1000)
+            {
+                return BadRequest("exceptionsPerSecond must be between 1 and 1000.");
+            }
+
+            var totalExceptions = durationSeconds * exceptionsPerSecond;
+            var endTime = DateTime.UtcNow.AddSeconds(durationSeconds);
+
+            while (DateTime.UtcNow < endTime)
+            {
+                for (int i = 0; i < exceptionsPerSecond; i++)
+                {
+                    try
+                    {
+                        throw new InvalidOperationException("Burst exception scenario");
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "Burst exception iteration {Iteration}", i);
+                    }
+                }
+
+                await Task.Delay(1000);
+            }
+
+            return $"success:exceptionburst ({totalExceptions} exceptions generated)";
+        }
+
+        [HttpGet]
+        [Route("probabilisticload/{durationSeconds}/{requestsPerSecond}/{exceptionPercentage}")]
+        public async Task<ActionResult<string>> ProbabilisticLoad(
+            int durationSeconds,
+            int requestsPerSecond,
+            int exceptionPercentage,
+            CancellationToken cancellationToken)
+        {
+            if (durationSeconds < 1 || durationSeconds > 1800)
+            {
+                return BadRequest("durationSeconds must be between 1 and 1800.");
+            }
+
+            if (requestsPerSecond < 1 || requestsPerSecond > 1000)
+            {
+                return BadRequest("requestsPerSecond must be between 1 and 1000.");
+            }
+
+            if (exceptionPercentage < 0 || exceptionPercentage > 100)
+            {
+                return BadRequest("exceptionPercentage must be between 0 and 100.");
+            }
+
+            var totalRequests = 0;
+            var failureCount = 0;
+            var endTime = DateTime.UtcNow.AddSeconds(durationSeconds);
+
+            async Task ExecuteRequestAsync()
+            {
+                Interlocked.Increment(ref totalRequests);
+
+                try
+                {
+                    await RunProbabilisticRequestAsync(exceptionPercentage, cancellationToken);
+                }
+                catch (OperationCanceledException)
+                {
+                    throw;
+                }
+                catch (Exception ex)
+                {
+                    Interlocked.Increment(ref failureCount);
+                    _logger.LogError(
+                        ex,
+                        "Probabilistic load request failed (total={Total}, failures={Failures})",
+                        totalRequests,
+                        failureCount);
+                }
+            }
+
+            while (DateTime.UtcNow < endTime)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+
+                var windowStart = DateTime.UtcNow;
+                var requestBatch = new List<Task>(requestsPerSecond);
+
+                for (int i = 0; i < requestsPerSecond; i++)
+                {
+                    requestBatch.Add(ExecuteRequestAsync());
+                }
+
+                await Task.WhenAll(requestBatch);
+
+                var remainingWindow = TimeSpan.FromSeconds(1) - (DateTime.UtcNow - windowStart);
+                if (remainingWindow > TimeSpan.Zero)
+                {
+                    await Task.Delay(remainingWindow, cancellationToken);
+                }
+            }
+
+            var successCount = totalRequests - failureCount;
+
+            return $"success:probabilisticload (durationSeconds={durationSeconds}, totalRequests={totalRequests}, successes={successCount}, failures={failureCount})";
         }
 
         [HttpGet]
@@ -173,6 +298,23 @@ namespace testwebapi.Controllers
             // run in parallel without blocking
             Customer c = await PretendQueryCustomerFromDbAsync("Dana");
             return "success:taskasyncwait";
+        }
+
+        private async Task RunProbabilisticRequestAsync(int exceptionPercentage, CancellationToken cancellationToken)
+        {
+            // Simulate backend latency before deciding whether to fail this request
+            await PretendQueryCustomerFromDbAsync(Guid.NewGuid().ToString());
+            cancellationToken.ThrowIfCancellationRequested();
+
+            if (exceptionPercentage == 0)
+            {
+                return;
+            }
+
+            if (Random.Shared.Next(0, 100) < exceptionPercentage)
+            {
+                throw new InvalidOperationException("Probabilistic backend failure triggered.");
+            }
         }
 
 
