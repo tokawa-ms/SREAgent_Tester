@@ -92,12 +92,24 @@ namespace DiagnosticScenarios.Services
         // シナリオごとの状態を管理するスレッドセーフなディクショナリ
         private readonly ConcurrentDictionary<ScenarioToggleType, ScenarioState> _state;
 
+        /// <summary>
+        /// ScenarioTargetControllerのエンドポイントパスを定義する内部クラス
+        /// </summary>
+        /// <remarks>
+        /// このクラスは、トグルシナリオがHTTPリクエストを送信する際の
+        /// ターゲットエンドポイントのパスを一元管理します
+        /// </remarks>
         private static class ScenarioTargetEndpoints
         {
+            /// <summary>確率的障害エンドポイント</summary>
             public const string ProbabilisticFailure = "api/ScenarioTarget/probabilistic-failure";
+            /// <summary>確率的レイテンシエンドポイント</summary>
             public const string ProbabilisticLatency = "api/ScenarioTarget/probabilistic-latency";
+            /// <summary>CPUスパイクエンドポイント</summary>
             public const string CpuSpike = "api/ScenarioTarget/cpu-spike";
+            /// <summary>メモリリークエンドポイント</summary>
             public const string MemoryLeak = "api/ScenarioTarget/memory-leak";
+            /// <summary>メモリリーク解放エンドポイント</summary>
             public const string MemoryLeakRelease = "api/ScenarioTarget/memory-leak/release";
         }
 
@@ -326,6 +338,16 @@ namespace DiagnosticScenarios.Services
             }
         }
 
+        /// <summary>
+        /// 1秒あたり指定された数のリクエストを継続的に送信します
+        /// </summary>
+        /// <param name="requestsPerSecond">1秒あたりのリクエスト数</param>
+        /// <param name="requestFactory">各リクエストを生成するファクトリ関数</param>
+        /// <param name="cancellationToken">キャンセルトークン</param>
+        /// <remarks>
+        /// 1秒のウィンドウ内で指定された数のリクエストをバッチ実行し、
+        /// 残り時間があれば待機して次のウィンドウに移行します
+        /// </remarks>
         private async Task RunRequestsPerSecondAsync(int requestsPerSecond, Func<CancellationToken, Task> requestFactory, CancellationToken cancellationToken)
         {
             try
@@ -361,6 +383,18 @@ namespace DiagnosticScenarios.Services
             }
         }
 
+        /// <summary>
+        /// ScenarioTargetControllerにHTTPリクエストを送信します
+        /// </summary>
+        /// <param name="httpClient">使用するHTTPクライアント</param>
+        /// <param name="baseUri">ベースURI（ホストとパスベース）</param>
+        /// <param name="relativeUri">相対URI（エンドポイントパス）</param>
+        /// <param name="payload">リクエストボディとして送信するペイロード</param>
+        /// <param name="cancellationToken">キャンセルトークン</param>
+        /// <param name="logNonSuccess">成功以外のレスポンスをログに記録するかどうか（デフォルト: true）</param>
+        /// <remarks>
+        /// JSON形式でペイロードをPOSTし、エラーがあれば警告ログを出力します
+        /// </remarks>
         private async Task SendScenarioRequestAsync(HttpClient httpClient, Uri baseUri, string relativeUri, object payload, CancellationToken cancellationToken, bool logNonSuccess = true)
         {
             var requestUri = new Uri(baseUri, relativeUri);
@@ -387,6 +421,14 @@ namespace DiagnosticScenarios.Services
             }
         }
 
+        /// <summary>
+        /// メモリリークシナリオで確保された全メモリを解放します
+        /// </summary>
+        /// <param name="httpClient">使用するHTTPクライアント</param>
+        /// <param name="baseUri">ベースURI（ホストとパスベース）</param>
+        /// <remarks>
+        /// メモリリークシナリオ終了時に自動的に呼び出されます
+        /// </remarks>
         private async Task ReleaseAllMemoryAsync(HttpClient httpClient, Uri baseUri)
         {
             try
@@ -408,6 +450,17 @@ namespace DiagnosticScenarios.Services
             }
         }
 
+        /// <summary>
+        /// 現在のHTTPリクエストからベースURIを解決します
+        /// </summary>
+        /// <returns>ベースURI（スキーム、ホスト、ポート、パスベースを含む）</returns>
+        /// <exception cref="InvalidOperationException">
+        /// HTTPコンテキストが利用できない、またはHostヘッダーが指定されていない場合
+        /// </exception>
+        /// <remarks>
+        /// このメソッドは、シナリオが自分自身に対してHTTPリクエストを送信する際に、
+        /// 正しいベースURLを構築するために使用されます
+        /// </remarks>
         private Uri ResolveBaseUri()
         {
             var httpContext = _httpContextAccessor.HttpContext
