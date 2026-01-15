@@ -14,16 +14,31 @@ using Microsoft.Extensions.Logging;
 
 namespace DiagnosticScenarios
 {
+    /// <summary>
+    /// ASP.NET Coreアプリケーションの起動と構成を管理するクラス
+    /// 依存性注入コンテナの設定とHTTPリクエストパイプラインの構築を担当します
+    /// </summary>
     public class Startup
     {
+        /// <summary>
+        /// Startupクラスのコンストラクタ
+        /// </summary>
+        /// <param name="configuration">アプリケーション設定（appsettings.jsonなど）</param>
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
         }
 
+        /// <summary>
+        /// アプリケーション設定へのアクセスを提供します
+        /// </summary>
         public IConfiguration Configuration { get; }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
+        /// <summary>
+        /// 依存性注入コンテナにサービスを登録します
+        /// ランタイムによって自動的に呼び出されます
+        /// </summary>
+        /// <param name="services">サービスコレクション（DIコンテナ）</param>
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllersWithViews()
@@ -32,7 +47,12 @@ namespace DiagnosticScenarios
             services.AddSingleton<IScenarioToggleService, ScenarioToggleService>();
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+        /// <summary>
+        /// HTTPリクエストパイプラインを構成します
+        /// ランタイムによって自動的に呼び出されます
+        /// </summary>
+        /// <param name="app">アプリケーションビルダー（ミドルウェアパイプラインの構築に使用）</param>
+        /// <param name="env">実行環境情報（Development、Production等）</param>
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
