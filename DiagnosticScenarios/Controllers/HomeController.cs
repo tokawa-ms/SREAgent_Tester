@@ -10,6 +10,11 @@ namespace DiagnosticScenarios.Controllers
             return View();
         }
 
+        public IActionResult ToggleScenarios()
+        {
+            return View();
+        }
+
         public IActionResult Error()
         {
             return View();

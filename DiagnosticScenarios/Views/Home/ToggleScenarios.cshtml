@@ -1,0 +1,254 @@
+@{
+    ViewData["Title"] = "継続的負荷テスト";
+}
+
+<div class="container py-3">
+    <div class="d-flex align-items-center justify-content-between mb-3">
+        <h1 class="h3 mb-0">継続的負荷テスト</h1>
+    </div>
+    <p class="text-muted mb-4">各カードのトグルをオンにすると負荷シナリオがバックグラウンドで開始され、指定した時間経過後に自動停止します。</p>
+
+    <div class="row g-3">
+        <div class="col-lg-6">
+            <div class="card h-100" data-scenario="ProbabilisticFailure">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span>[PF] 確率的失敗ロード</span>
+                    <div class="form-check form-switch m-0">
+                        <input class="form-check-input scenario-toggle" type="checkbox" id="toggle-ProbabilisticFailure" data-scenario="ProbabilisticFailure">
+                    </div>
+                </div>
+                <div class="card-body">
+                    <form id="form-ProbabilisticFailure" class="scenario-form">
+                        <div class="mb-2">
+                            <label class="form-label">継続時間 (分)</label>
+                            <input class="form-control" type="number" name="durationMinutes" value="1" min="1" max="180" required>
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">1秒あたりのアクセス数</label>
+                            <input class="form-control" type="number" name="requestsPerSecond" value="10" min="1" max="1000" required>
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">失敗率 (%)</label>
+                            <input class="form-control" type="number" name="failurePercentage" value="10" min="0" max="100" required>
+                        </div>
+                    </form>
+                    <div class="small text-muted" id="status-ProbabilisticFailure">停止中</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="card h-100" data-scenario="CpuSpike">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span>[CPU] CPU スパイク</span>
+                    <div class="form-check form-switch m-0">
+                        <input class="form-check-input scenario-toggle" type="checkbox" id="toggle-CpuSpike" data-scenario="CpuSpike">
+                    </div>
+                </div>
+                <div class="card-body">
+                    <form id="form-CpuSpike" class="scenario-form">
+                        <div class="mb-2">
+                            <label class="form-label">継続時間 (分)</label>
+                            <input class="form-control" type="number" name="durationMinutes" value="1" min="1" max="180" required>
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">抽選間隔 (秒)</label>
+                            <input class="form-control" type="number" name="intervalSeconds" value="10" min="1" max="300" required>
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">当選率 (%)</label>
+                            <input class="form-control" type="number" name="triggerPercentage" value="30" min="0" max="100" required>
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">スパイク時間 (秒)</label>
+                            <input class="form-control" type="number" name="spikeSeconds" value="5" min="1" max="30" required>
+                        </div>
+                    </form>
+                    <div class="small text-muted" id="status-CpuSpike">停止中</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="card h-100" data-scenario="MemoryLeak">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span>[MEM] メモリリーク</span>
+                    <div class="form-check form-switch m-0">
+                        <input class="form-check-input scenario-toggle" type="checkbox" id="toggle-MemoryLeak" data-scenario="MemoryLeak">
+                    </div>
+                </div>
+                <div class="card-body">
+                    <form id="form-MemoryLeak" class="scenario-form">
+                        <div class="mb-2">
+                            <label class="form-label">継続時間 (分)</label>
+                            <input class="form-control" type="number" name="durationMinutes" value="1" min="1" max="180" required>
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">抽選間隔 (秒)</label>
+                            <input class="form-control" type="number" name="intervalSeconds" value="5" min="1" max="300" required>
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">当選率 (%)</label>
+                            <input class="form-control" type="number" name="triggerPercentage" value="20" min="0" max="100" required>
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">リークサイズ (MB)</label>
+                            <input class="form-control" type="number" name="memoryMegabytes" value="100" min="1" max="1024" required>
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">保持時間 (秒)</label>
+                            <input class="form-control" type="number" name="holdSeconds" value="10" min="1" max="60" required>
+                        </div>
+                    </form>
+                    <div class="small text-muted" id="status-MemoryLeak">停止中</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="card h-100" data-scenario="ProbabilisticLatency">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span>[DELAY] 確率的遅延</span>
+                    <div class="form-check form-switch m-0">
+                        <input class="form-check-input scenario-toggle" type="checkbox" id="toggle-ProbabilisticLatency" data-scenario="ProbabilisticLatency">
+                    </div>
+                </div>
+                <div class="card-body">
+                    <form id="form-ProbabilisticLatency" class="scenario-form">
+                        <div class="mb-2">
+                            <label class="form-label">継続時間 (分)</label>
+                            <input class="form-control" type="number" name="durationMinutes" value="1" min="1" max="180" required>
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">1秒あたりのアクセス数</label>
+                            <input class="form-control" type="number" name="requestsPerSecond" value="10" min="1" max="1000" required>
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">遅延発生率 (%)</label>
+                            <input class="form-control" type="number" name="triggerPercentage" value="40" min="0" max="100" required>
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">遅延時間 (ms)</label>
+                            <input class="form-control" type="number" name="delayMilliseconds" value="500" min="1" max="10000" required>
+                        </div>
+                    </form>
+                    <div class="small text-muted" id="status-ProbabilisticLatency">停止中</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="alert alert-warning mt-4">
+        <strong>注意:</strong> これらのシナリオはテスト用途です。環境のリソース状況に応じて値を調整してください。
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const scenarioEndpoints = {
+            ProbabilisticFailure: {
+                start: '/api/ScenarioToggle/probabilistic-failure/start',
+                stop: '/api/ScenarioToggle/probabilistic-failure/stop',
+                fields: ['durationMinutes', 'requestsPerSecond', 'failurePercentage']
+            },
+            CpuSpike: {
+                start: '/api/ScenarioToggle/cpu-spike/start',
+                stop: '/api/ScenarioToggle/cpu-spike/stop',
+                fields: ['durationMinutes', 'intervalSeconds', 'triggerPercentage', 'spikeSeconds']
+            },
+            MemoryLeak: {
+                start: '/api/ScenarioToggle/memory-leak/start',
+                stop: '/api/ScenarioToggle/memory-leak/stop',
+                fields: ['durationMinutes', 'intervalSeconds', 'triggerPercentage', 'memoryMegabytes', 'holdSeconds']
+            },
+            ProbabilisticLatency: {
+                start: '/api/ScenarioToggle/probabilistic-latency/start',
+                stop: '/api/ScenarioToggle/probabilistic-latency/stop',
+                fields: ['durationMinutes', 'requestsPerSecond', 'triggerPercentage', 'delayMilliseconds']
+            }
+        };
+
+        document.querySelectorAll('.scenario-toggle').forEach(toggle => {
+            toggle.addEventListener('change', async (event) => {
+                const scenario = event.target.dataset.scenario;
+                event.target.disabled = true;
+                try {
+                    if (event.target.checked) {
+                        await startScenario(scenario);
+                    } else {
+                        await stopScenario(scenario);
+                    }
+                    await refreshStatuses();
+                } catch (error) {
+                    alert(`エラー: ${error.message}`);
+                    event.target.checked = !event.target.checked;
+                } finally {
+                    event.target.disabled = false;
+                }
+            });
+        });
+
+        async function startScenario(scenario) {
+            const config = scenarioEndpoints[scenario];
+            const form = document.getElementById(`form-${scenario}`);
+            const payload = {};
+            config.fields.forEach(field => {
+                const input = form.querySelector(`[name="${field}"]`);
+                payload[field] = Number(input.value);
+            });
+
+            const response = await fetch(config.start, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (!response.ok) {
+                const message = await response.text();
+                throw new Error(message || '開始に失敗しました');
+            }
+        }
+
+        async function stopScenario(scenario) {
+            const response = await fetch(scenarioEndpoints[scenario].stop, { method: 'POST' });
+            if (!response.ok) {
+                const message = await response.text();
+                throw new Error(message || '停止に失敗しました');
+            }
+        }
+
+        async function refreshStatuses() {
+            try {
+                const response = await fetch('/api/ScenarioToggle/status');
+                if (!response.ok) {
+                    throw new Error('ステータス取得に失敗しました');
+                }
+
+                const statuses = await response.json();
+                statuses.forEach(updateScenarioStatus);
+            } catch (error) {
+                console.warn(error);
+            }
+        }
+
+        function updateScenarioStatus(status) {
+            const toggle = document.getElementById(`toggle-${status.scenario}`);
+            const statusLabel = document.getElementById(`status-${status.scenario}`);
+            if (!toggle || !statusLabel) {
+                return;
+            }
+
+            toggle.checked = status.isActive;
+            let message = status.lastMessage || '停止中';
+            if (status.isActive && status.endsAtUtc) {
+                const localTime = new Date(status.endsAtUtc).toLocaleTimeString();
+                message = `稼働中 (自動停止予定: ${localTime})`;
+            }
+
+            statusLabel.textContent = message;
+        }
+
+        refreshStatuses();
+        setInterval(refreshStatuses, 5000);
+    </script>
+}
