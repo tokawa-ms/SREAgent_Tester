@@ -9,6 +9,62 @@
             <strong>注意:</strong> これらのシナリオは開発・テスト環境でのみ実行してください。本番環境では絶対に実行しないでください。
         </div>
     </div>
+
+    <!-- 例外バーストシナリオ -->
+    <div class="col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header bg-danger text-white">
+                <h5 class="mb-0">⚡ 例外バースト</h5>
+            </div>
+            <div class="card-body">
+                <p class="card-text">指定した秒数の間、1秒あたり指定回数の例外を発生させ続けます。</p>
+                <div class="input-group mb-2">
+                    <span class="input-group-text">秒数</span>
+                    <input type="number" class="form-control" id="exceptionburst-seconds" value="5" min="1" max="1800">
+                </div>
+                <div class="input-group mb-2">
+                    <span class="input-group-text">1秒あたり</span>
+                    <input type="number" class="form-control" id="exceptionburst-rate" value="10" min="1" max="1000">
+                    <span class="input-group-text">回</span>
+                </div>
+                <button class="btn btn-danger" onclick="executeExceptionBurst()">
+                    例外バースト実行
+                </button>
+                <div id="exceptionburst-result" class="mt-3"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 確率的例外ロードシナリオ -->
+    <div class="col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">🎯 確率的例外ロード</h5>
+            </div>
+            <div class="card-body">
+                <p class="card-text">N秒間、秒間M回のバックエンド呼び出しを実行し、そのうちX%で例外を発生させます。</p>
+                <div class="input-group mb-2">
+                    <span class="input-group-text">継続時間</span>
+                    <input type="number" class="form-control" id="probabilistic-duration" value="10" min="1" max="1800">
+                    <span class="input-group-text">秒</span>
+                </div>
+                <div class="input-group mb-2">
+                    <span class="input-group-text">1秒あたり</span>
+                    <input type="number" class="form-control" id="probabilistic-rate" value="5" min="1" max="1000">
+                    <span class="input-group-text">リクエスト</span>
+                </div>
+                <div class="input-group mb-3">
+                    <span class="input-group-text">例外率</span>
+                    <input type="number" class="form-control" id="probabilistic-error" value="20" min="0" max="100">
+                    <span class="input-group-text">%</span>
+                </div>
+                <button class="btn btn-primary" onclick="executeProbabilisticLoad()">
+                    確率的ロード実行
+                </button>
+                <div id="probabilistic-result" class="mt-3"></div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <div class="row">
@@ -37,7 +93,7 @@
             <div class="card-body">
                 <p class="card-text">指定した秒数間メモリ使用量を急激に増加させます。</p>
                 <div class="input-group mb-2">
-                    <input type="number" class="form-control" id="memspike-seconds" placeholder="秒数" value="10" min="1" max="60">
+                    <input type="number" class="form-control" id="memspike-seconds" placeholder="秒数" value="10" min="1" max="1800">
                     <span class="input-group-text">秒</span>
                 </div>
                 <button class="btn btn-warning" onclick="executeMemSpike()">
@@ -182,8 +238,8 @@
         // メモリスパイク実行
         async function executeMemSpike() {
             const seconds = document.getElementById('memspike-seconds').value;
-            if (!seconds || seconds < 1) {
-                alert('有効な秒数を入力してください (1-60)');
+            if (!seconds || seconds < 1 || seconds > 1800) {
+                alert('有効な秒数を入力してください (1-1800)');
                 return;
             }
             await executeScenario(`/api/DiagScenario/memspike/${seconds}`, 'memspike-result');
@@ -197,6 +253,48 @@
                 return;
             }
             await executeScenario(`/api/DiagScenario/memleak/${kb}`, 'memleak-result');
+        }
+
+        // 例外バースト実行
+        async function executeExceptionBurst() {
+            const seconds = parseInt(document.getElementById('exceptionburst-seconds').value, 10);
+            const rate = parseInt(document.getElementById('exceptionburst-rate').value, 10);
+
+            if (!seconds || seconds < 1 || seconds > 1800) {
+                alert('有効な秒数を入力してください (1-1800)');
+                return;
+            }
+
+            if (!rate || rate < 1 || rate > 1000) {
+                alert('1秒あたりの回数を入力してください (1-1000)');
+                return;
+            }
+
+            await executeScenario(`/api/DiagScenario/exceptionburst/${seconds}/${rate}`, 'exceptionburst-result');
+        }
+
+        // 確率的例外ロード実行
+        async function executeProbabilisticLoad() {
+            const duration = parseInt(document.getElementById('probabilistic-duration').value, 10);
+            const rate = parseInt(document.getElementById('probabilistic-rate').value, 10);
+            const errorRate = parseInt(document.getElementById('probabilistic-error').value, 10);
+
+            if (!duration || duration < 1 || duration > 1800) {
+                alert('継続時間を入力してください (1-1800秒)');
+                return;
+            }
+
+            if (!rate || rate < 1 || rate > 1000) {
+                alert('1秒あたりのリクエスト数を入力してください (1-1000)');
+                return;
+            }
+
+            if (Number.isNaN(errorRate) || errorRate < 0 || errorRate > 100) {
+                alert('例外率を入力してください (0-100%)');
+                return;
+            }
+
+            await executeScenario(`/api/DiagScenario/probabilisticload/${duration}/${rate}/${errorRate}`, 'probabilistic-result');
         }
 
         // 高CPU実行
