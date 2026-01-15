@@ -10,23 +10,91 @@ using Microsoft.Extensions.Logging;
 
 namespace DiagnosticScenarios.Services
 {
+    /// <summary>
+    /// バックグラウンドで実行される診断シナリオの管理を行うサービスのインターフェース
+    /// 各シナリオの開始、停止、状態取得の機能を提供します
+    /// </summary>
     public interface IScenarioToggleService
     {
+        /// <summary>
+        /// 全シナリオの現在の状態を取得します
+        /// </summary>
+        /// <returns>全シナリオの状態のコレクション</returns>
         IReadOnlyCollection<ScenarioStatus> GetStatuses();
+        
+        /// <summary>
+        /// 指定されたシナリオの現在の状態を取得します
+        /// </summary>
+        /// <param name="scenario">状態を取得するシナリオの種類</param>
+        /// <returns>指定されたシナリオの状態</returns>
         ScenarioStatus GetStatus(ScenarioToggleType scenario);
+        
+        /// <summary>
+        /// 確率的障害シナリオを開始します
+        /// バックグラウンドタスクとして実行され、指定された時間まで継続します
+        /// </summary>
+        /// <param name="request">シナリオの設定パラメータ</param>
+        /// <param name="cancellationToken">キャンセルトークン</param>
+        /// <returns>開始されたシナリオの状態</returns>
+        /// <exception cref="InvalidOperationException">シナリオが既に実行中の場合</exception>
         Task<ScenarioStatus> StartProbabilisticFailureAsync(ProbabilisticFailureRequest request, CancellationToken cancellationToken);
+        
+        /// <summary>
+        /// CPUスパイクシナリオを開始します
+        /// バックグラウンドタスクとして実行され、指定された時間まで継続します
+        /// </summary>
+        /// <param name="request">シナリオの設定パラメータ</param>
+        /// <param name="cancellationToken">キャンセルトークン</param>
+        /// <returns>開始されたシナリオの状態</returns>
+        /// <exception cref="InvalidOperationException">シナリオが既に実行中の場合</exception>
         Task<ScenarioStatus> StartCpuSpikeAsync(CpuSpikeRequest request, CancellationToken cancellationToken);
+        
+        /// <summary>
+        /// メモリリークシナリオを開始します
+        /// バックグラウンドタスクとして実行され、指定された時間まで継続します
+        /// </summary>
+        /// <param name="request">シナリオの設定パラメータ</param>
+        /// <param name="cancellationToken">キャンセルトークン</param>
+        /// <returns>開始されたシナリオの状態</returns>
+        /// <exception cref="InvalidOperationException">シナリオが既に実行中の場合</exception>
         Task<ScenarioStatus> StartMemoryLeakAsync(MemoryLeakRequest request, CancellationToken cancellationToken);
+        
+        /// <summary>
+        /// 確率的レイテンシシナリオを開始します
+        /// バックグラウンドタスクとして実行され、指定された時間まで継続します
+        /// </summary>
+        /// <param name="request">シナリオの設定パラメータ</param>
+        /// <param name="cancellationToken">キャンセルトークン</param>
+        /// <returns>開始されたシナリオの状態</returns>
+        /// <exception cref="InvalidOperationException">シナリオが既に実行中の場合</exception>
         Task<ScenarioStatus> StartProbabilisticLatencyAsync(ProbabilisticLatencyRequest request, CancellationToken cancellationToken);
+        
+        /// <summary>
+        /// 指定されたシナリオを停止します
+        /// 実行中でない場合は何も行いません
+        /// </summary>
+        /// <param name="scenario">停止するシナリオの種類</param>
+        /// <returns>停止後のシナリオの状態</returns>
         ScenarioStatus StopScenario(ScenarioToggleType scenario);
     }
 
+    /// <summary>
+    /// IScenarioToggleServiceの実装クラス
+    /// 複数のシナリオを並行して実行し、スレッドセーフに状態を管理します
+    /// </summary>
     internal sealed class ScenarioToggleService : IScenarioToggleService
     {
         private readonly ILogger<ScenarioToggleService> _logger;
+        // シナリオごとの状態を管理するスレッドセーフなディクショナリ
         private readonly ConcurrentDictionary<ScenarioToggleType, ScenarioState> _state;
+        // メモリリークシナリオで確保したメモリブロックを管理
         private readonly ConcurrentDictionary<Guid, byte[]> _memoryLeases = new();
 
+        /// <summary>
+        /// ScenarioToggleServiceのコンストラクタ
+        /// 全シナリオの初期状態を構築します
+        /// </summary>
+        /// <param name="logger">ロガー（DIコンテナから注入）</param>
         public ScenarioToggleService(ILogger<ScenarioToggleService> logger)
         {
             _logger = logger;
@@ -87,6 +155,20 @@ namespace DiagnosticScenarios.Services
             };
         }
 
+        /// <summary>
+        /// シナリオを開始する共通ロジック
+        /// スレッドセーフにシナリオの状態を管理し、バックグラウンドタスクとして実行します
+        /// </summary>
+        /// <typeparam name="TRequest">リクエストの型</typeparam>
+        /// <param name="scenario">開始するシナリオの種類</param>
+        /// <param name="durationMinutes">実行時間（分）</param>
+        /// <param name="request">シナリオのパラメータ</param>
+        /// <param name="cancellationToken">キャンセルトークン</param>
+        /// <param name="scenarioWork">シナリオの実行ロジックを表すデリゲート</param>
+        /// <returns>開始されたシナリオの状態</returns>
+        /// <exception cref="InvalidOperationException">シナリオが既に実行中、またはシナリオ状態が見つからない場合</exception>
+        /// <exception cref="ArgumentNullException">requestがnullの場合</exception>
+        /// <exception cref="ArgumentOutOfRangeException">durationMinutesが0以下の場合</exception>
         private Task<ScenarioStatus> StartScenarioAsync<TRequest>(
             ScenarioToggleType scenario,
             int durationMinutes,
@@ -154,6 +236,12 @@ namespace DiagnosticScenarios.Services
             return Task.FromResult(state.ToStatus());
         }
 
+        /// <summary>
+        /// 確率的障害シナリオの実行ロジック
+        /// 指定された頻度でリクエストをシミュレートし、一定確率で例外を発生させます
+        /// </summary>
+        /// <param name="request">シナリオのパラメータ</param>
+        /// <param name="cancellationToken">キャンセルトークン</param>
         private async Task RunProbabilisticFailureAsync(ProbabilisticFailureRequest request, CancellationToken cancellationToken)
         {
             try
@@ -189,6 +277,12 @@ namespace DiagnosticScenarios.Services
             }
         }
 
+        /// <summary>
+        /// 確率的レイテンシシナリオの実行ロジック
+        /// 指定された頻度でリクエストをシミュレートし、一定確率で遅延を注入します
+        /// </summary>
+        /// <param name="request">シナリオのパラメータ</param>
+        /// <param name="cancellationToken">キャンセルトークン</param>
         private async Task RunProbabilisticLatencyAsync(ProbabilisticLatencyRequest request, CancellationToken cancellationToken)
         {
             try
@@ -224,6 +318,12 @@ namespace DiagnosticScenarios.Services
             }
         }
 
+        /// <summary>
+        /// CPUスパイクシナリオの実行ロジック
+        /// 定期的にCPUビジーループを実行して、CPU使用率を急上昇させます
+        /// </summary>
+        /// <param name="request">シナリオのパラメータ</param>
+        /// <param name="cancellationToken">キャンセルトークン</param>
         private async Task RunCpuSpikeAsync(CpuSpikeRequest request, CancellationToken cancellationToken)
         {
             try
@@ -245,6 +345,12 @@ namespace DiagnosticScenarios.Services
             }
         }
 
+        /// <summary>
+        /// メモリリークシナリオの実行ロジック
+        /// 定期的に大きなバイト配列を確保し、一定時間保持してメモリリークをシミュレートします
+        /// </summary>
+        /// <param name="request">シナリオのパラメータ</param>
+        /// <param name="cancellationToken">キャンセルトークン</param>
         private async Task RunMemoryLeakAsync(MemoryLeakRequest request, CancellationToken cancellationToken)
         {
             try
@@ -283,6 +389,11 @@ namespace DiagnosticScenarios.Services
             }
         }
 
+        /// <summary>
+        /// リクエストをシミュレートし、一定確率で例外を発生させます
+        /// </summary>
+        /// <param name="failurePercentage">失敗率（0～100）</param>
+        /// <param name="cancellationToken">キャンセルトークン</param>
         private async Task SimulateRequestAsync(int failurePercentage, CancellationToken cancellationToken)
         {
             await Task.Delay(50, cancellationToken).ConfigureAwait(false);
@@ -292,6 +403,12 @@ namespace DiagnosticScenarios.Services
             }
         }
 
+        /// <summary>
+        /// リクエストをシミュレートし、一定確率で遅延を注入します
+        /// </summary>
+        /// <param name="triggerPercentage">遅延を発生させる確率（0～100）</param>
+        /// <param name="delayMilliseconds">遅延時間（ミリ秒）</param>
+        /// <param name="cancellationToken">キャンセルトークン</param>
         private async Task SimulateLatencyAsync(int triggerPercentage, int delayMilliseconds, CancellationToken cancellationToken)
         {
             await Task.Delay(50, cancellationToken).ConfigureAwait(false);
@@ -301,6 +418,12 @@ namespace DiagnosticScenarios.Services
             }
         }
 
+        /// <summary>
+        /// CPUビジーループを実行してCPU使用率を上げます
+        /// SpinWaitを使用して効率的にCPUリソースを消費します
+        /// </summary>
+        /// <param name="duration">ビジーループの実行時間</param>
+        /// <param name="cancellationToken">キャンセルトークン</param>
         private static void BusyWait(TimeSpan duration, CancellationToken cancellationToken)
         {
             var watch = Stopwatch.StartNew();
@@ -316,6 +439,10 @@ namespace DiagnosticScenarios.Services
             }
         }
 
+        /// <summary>
+        /// メモリリークシナリオで確保した全メモリを解放します
+        /// シナリオ停止時に呼び出されます
+        /// </summary>
         private void ReleaseAllMemory()
         {
             foreach (var key in _memoryLeases.Keys)
@@ -324,6 +451,10 @@ namespace DiagnosticScenarios.Services
             }
         }
 
+        /// <summary>
+        /// 個別のシナリオの実行状態を管理する内部クラス
+        /// スレッドセーフに状態の更新と取得を行います
+        /// </summary>
         private sealed class ScenarioState
         {
             public ScenarioState(ScenarioToggleType scenario)
