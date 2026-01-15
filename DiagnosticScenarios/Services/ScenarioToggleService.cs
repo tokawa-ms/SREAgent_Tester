@@ -1,11 +1,13 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
+using System.Net.Http;
+using System.Net.Http.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using DiagnosticScenarios.Models;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 
 namespace DiagnosticScenarios.Services
@@ -85,19 +87,33 @@ namespace DiagnosticScenarios.Services
     internal sealed class ScenarioToggleService : IScenarioToggleService
     {
         private readonly ILogger<ScenarioToggleService> _logger;
+        private readonly IHttpClientFactory _httpClientFactory;
+        private readonly IHttpContextAccessor _httpContextAccessor;
         // シナリオごとの状態を管理するスレッドセーフなディクショナリ
         private readonly ConcurrentDictionary<ScenarioToggleType, ScenarioState> _state;
-        // メモリリークシナリオで確保したメモリブロックを管理
-        private readonly ConcurrentDictionary<Guid, byte[]> _memoryLeases = new();
+
+        private static class ScenarioTargetEndpoints
+        {
+            public const string ProbabilisticFailure = "api/ScenarioTarget/probabilistic-failure";
+            public const string ProbabilisticLatency = "api/ScenarioTarget/probabilistic-latency";
+            public const string CpuSpike = "api/ScenarioTarget/cpu-spike";
+            public const string MemoryLeak = "api/ScenarioTarget/memory-leak";
+            public const string MemoryLeakRelease = "api/ScenarioTarget/memory-leak/release";
+        }
 
         /// <summary>
         /// ScenarioToggleServiceのコンストラクタ
         /// 全シナリオの初期状態を構築します
         /// </summary>
         /// <param name="logger">ロガー（DIコンテナから注入）</param>
-        public ScenarioToggleService(ILogger<ScenarioToggleService> logger)
+        public ScenarioToggleService(
+            ILogger<ScenarioToggleService> logger,
+            IHttpClientFactory httpClientFactory,
+            IHttpContextAccessor httpContextAccessor)
         {
             _logger = logger;
+            _httpClientFactory = httpClientFactory;
+            _httpContextAccessor = httpContextAccessor;
             _state = new ConcurrentDictionary<ScenarioToggleType, ScenarioState>(
                 Enum.GetValues(typeof(ScenarioToggleType))
                     .Cast<ScenarioToggleType>()
@@ -122,22 +138,22 @@ namespace DiagnosticScenarios.Services
 
         public Task<ScenarioStatus> StartProbabilisticFailureAsync(ProbabilisticFailureRequest request, CancellationToken cancellationToken)
         {
-            return StartScenarioAsync(ScenarioToggleType.ProbabilisticFailure, request.DurationMinutes, request, cancellationToken, token => RunProbabilisticFailureAsync(request, token));
+            return StartScenarioAsync(ScenarioToggleType.ProbabilisticFailure, request.DurationMinutes, request, cancellationToken, (client, baseUri, token) => RunProbabilisticFailureAsync(request, client, baseUri, token));
         }
 
         public Task<ScenarioStatus> StartCpuSpikeAsync(CpuSpikeRequest request, CancellationToken cancellationToken)
         {
-            return StartScenarioAsync(ScenarioToggleType.CpuSpike, request.DurationMinutes, request, cancellationToken, token => RunCpuSpikeAsync(request, token));
+            return StartScenarioAsync(ScenarioToggleType.CpuSpike, request.DurationMinutes, request, cancellationToken, (client, baseUri, token) => RunCpuSpikeAsync(request, client, baseUri, token));
         }
 
         public Task<ScenarioStatus> StartMemoryLeakAsync(MemoryLeakRequest request, CancellationToken cancellationToken)
         {
-            return StartScenarioAsync(ScenarioToggleType.MemoryLeak, request.DurationMinutes, request, cancellationToken, token => RunMemoryLeakAsync(request, token));
+            return StartScenarioAsync(ScenarioToggleType.MemoryLeak, request.DurationMinutes, request, cancellationToken, (client, baseUri, token) => RunMemoryLeakAsync(request, client, baseUri, token));
         }
 
         public Task<ScenarioStatus> StartProbabilisticLatencyAsync(ProbabilisticLatencyRequest request, CancellationToken cancellationToken)
         {
-            return StartScenarioAsync(ScenarioToggleType.ProbabilisticLatency, request.DurationMinutes, request, cancellationToken, token => RunProbabilisticLatencyAsync(request, token));
+            return StartScenarioAsync(ScenarioToggleType.ProbabilisticLatency, request.DurationMinutes, request, cancellationToken, (client, baseUri, token) => RunProbabilisticLatencyAsync(request, client, baseUri, token));
         }
 
         public ScenarioStatus StopScenario(ScenarioToggleType scenario)
@@ -174,7 +190,7 @@ namespace DiagnosticScenarios.Services
             int durationMinutes,
             TRequest request,
             CancellationToken cancellationToken,
-            Func<CancellationToken, Task> scenarioWork)
+            Func<HttpClient, Uri, CancellationToken, Task> scenarioWork)
         {
             if (!_state.TryGetValue(scenario, out var state))
             {
@@ -203,6 +219,8 @@ namespace DiagnosticScenarios.Services
 
                 var scenarioCts = new CancellationTokenSource();
                 scenarioCts.CancelAfter(duration);
+                var httpClient = _httpClientFactory.CreateClient();
+                var baseUri = ResolveBaseUri();
 
                 state.Start(scenarioCts, DateTimeOffset.UtcNow.Add(duration), request);
 
@@ -210,7 +228,7 @@ namespace DiagnosticScenarios.Services
                 {
                     try
                     {
-                        await scenarioWork(scenarioCts.Token).ConfigureAwait(false);
+                        await scenarioWork(httpClient, baseUri, scenarioCts.Token).ConfigureAwait(false);
                         var message = scenarioCts.IsCancellationRequested ? "Scenario cancelled" : "Scenario finished";
                         state.Complete(message);
                     }
@@ -227,7 +245,7 @@ namespace DiagnosticScenarios.Services
                     {
                         if (scenario == ScenarioToggleType.MemoryLeak)
                         {
-                            ReleaseAllMemory();
+                            await ReleaseAllMemoryAsync(httpClient, baseUri).ConfigureAwait(false);
                         }
                     }
                 }, CancellationToken.None);
@@ -242,39 +260,12 @@ namespace DiagnosticScenarios.Services
         /// </summary>
         /// <param name="request">シナリオのパラメータ</param>
         /// <param name="cancellationToken">キャンセルトークン</param>
-        private async Task RunProbabilisticFailureAsync(ProbabilisticFailureRequest request, CancellationToken cancellationToken)
+        private Task RunProbabilisticFailureAsync(ProbabilisticFailureRequest request, HttpClient httpClient, Uri baseUri, CancellationToken cancellationToken)
         {
-            try
-            {
-                while (!cancellationToken.IsCancellationRequested)
-                {
-                    var windowStart = DateTime.UtcNow;
-                    var batch = new List<Task>(request.RequestsPerSecond);
-                    for (int i = 0; i < request.RequestsPerSecond; i++)
-                    {
-                        batch.Add(SimulateRequestAsync(request.FailurePercentage, cancellationToken));
-                    }
-
-                    try
-                    {
-                        await Task.WhenAll(batch).ConfigureAwait(false);
-                    }
-                    catch (Exception ex) when (ex is not OperationCanceledException)
-                    {
-                        _logger.LogWarning(ex, "Probabilistic failure request batch encountered errors");
-                    }
-
-                    var remaining = TimeSpan.FromSeconds(1) - (DateTime.UtcNow - windowStart);
-                    if (remaining > TimeSpan.Zero)
-                    {
-                        await Task.Delay(remaining, cancellationToken).ConfigureAwait(false);
-                    }
-                }
-            }
-            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
-            {
-                // expected when toggle stops the scenario
-            }
+            return RunRequestsPerSecondAsync(
+                request.RequestsPerSecond,
+                token => SendScenarioRequestAsync(httpClient, baseUri, ScenarioTargetEndpoints.ProbabilisticFailure, request, token, logNonSuccess: false),
+                cancellationToken);
         }
 
         /// <summary>
@@ -283,39 +274,12 @@ namespace DiagnosticScenarios.Services
         /// </summary>
         /// <param name="request">シナリオのパラメータ</param>
         /// <param name="cancellationToken">キャンセルトークン</param>
-        private async Task RunProbabilisticLatencyAsync(ProbabilisticLatencyRequest request, CancellationToken cancellationToken)
+        private Task RunProbabilisticLatencyAsync(ProbabilisticLatencyRequest request, HttpClient httpClient, Uri baseUri, CancellationToken cancellationToken)
         {
-            try
-            {
-                while (!cancellationToken.IsCancellationRequested)
-                {
-                    var windowStart = DateTime.UtcNow;
-                    var batch = new List<Task>(request.RequestsPerSecond);
-                    for (int i = 0; i < request.RequestsPerSecond; i++)
-                    {
-                        batch.Add(SimulateLatencyAsync(request.TriggerPercentage, request.DelayMilliseconds, cancellationToken));
-                    }
-
-                    try
-                    {
-                        await Task.WhenAll(batch).ConfigureAwait(false);
-                    }
-                    catch (Exception ex) when (ex is not OperationCanceledException)
-                    {
-                        _logger.LogWarning(ex, "Probabilistic latency batch encountered errors");
-                    }
-
-                    var remaining = TimeSpan.FromSeconds(1) - (DateTime.UtcNow - windowStart);
-                    if (remaining > TimeSpan.Zero)
-                    {
-                        await Task.Delay(remaining, cancellationToken).ConfigureAwait(false);
-                    }
-                }
-            }
-            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
-            {
-                // expected when toggle stops the scenario
-            }
+            return RunRequestsPerSecondAsync(
+                request.RequestsPerSecond,
+                token => SendScenarioRequestAsync(httpClient, baseUri, ScenarioTargetEndpoints.ProbabilisticLatency, request, token),
+                cancellationToken);
         }
 
         /// <summary>
@@ -324,18 +288,13 @@ namespace DiagnosticScenarios.Services
         /// </summary>
         /// <param name="request">シナリオのパラメータ</param>
         /// <param name="cancellationToken">キャンセルトークン</param>
-        private async Task RunCpuSpikeAsync(CpuSpikeRequest request, CancellationToken cancellationToken)
+        private async Task RunCpuSpikeAsync(CpuSpikeRequest request, HttpClient httpClient, Uri baseUri, CancellationToken cancellationToken)
         {
             try
             {
                 while (!cancellationToken.IsCancellationRequested)
                 {
-                    if (Random.Shared.Next(0, 100) < request.TriggerPercentage)
-                    {
-                        _logger.LogInformation("CPU spike triggered for {Seconds} seconds", request.SpikeSeconds);
-                        await Task.Run(() => BusyWait(TimeSpan.FromSeconds(request.SpikeSeconds), cancellationToken), CancellationToken.None).ConfigureAwait(false);
-                    }
-
+                    await SendScenarioRequestAsync(httpClient, baseUri, ScenarioTargetEndpoints.CpuSpike, request, cancellationToken).ConfigureAwait(false);
                     await Task.Delay(TimeSpan.FromSeconds(request.IntervalSeconds), cancellationToken).ConfigureAwait(false);
                 }
             }
@@ -351,35 +310,13 @@ namespace DiagnosticScenarios.Services
         /// </summary>
         /// <param name="request">シナリオのパラメータ</param>
         /// <param name="cancellationToken">キャンセルトークン</param>
-        private async Task RunMemoryLeakAsync(MemoryLeakRequest request, CancellationToken cancellationToken)
+        private async Task RunMemoryLeakAsync(MemoryLeakRequest request, HttpClient httpClient, Uri baseUri, CancellationToken cancellationToken)
         {
             try
             {
                 while (!cancellationToken.IsCancellationRequested)
                 {
-                    if (Random.Shared.Next(0, 100) < request.TriggerPercentage)
-                    {
-                        var leaseId = Guid.NewGuid();
-                        var allocation = new byte[request.MemoryMegabytes * 1024 * 1024];
-                        _memoryLeases[leaseId] = allocation;
-                        _logger.LogInformation("Allocated {MB} MB for {Seconds} seconds", request.MemoryMegabytes, request.HoldSeconds);
-
-                        _ = Task.Run(async () =>
-                        {
-                            try
-                            {
-                                await Task.Delay(TimeSpan.FromSeconds(request.HoldSeconds), cancellationToken).ConfigureAwait(false);
-                            }
-                            catch (OperationCanceledException)
-                            {
-                            }
-                            finally
-                            {
-                                _memoryLeases.TryRemove(leaseId, out _);
-                            }
-                        }, CancellationToken.None);
-                    }
-
+                    await SendScenarioRequestAsync(httpClient, baseUri, ScenarioTargetEndpoints.MemoryLeak, request, cancellationToken).ConfigureAwait(false);
                     await Task.Delay(TimeSpan.FromSeconds(request.IntervalSeconds), cancellationToken).ConfigureAwait(false);
                 }
             }
@@ -389,66 +326,115 @@ namespace DiagnosticScenarios.Services
             }
         }
 
-        /// <summary>
-        /// リクエストをシミュレートし、一定確率で例外を発生させます
-        /// </summary>
-        /// <param name="failurePercentage">失敗率（0～100）</param>
-        /// <param name="cancellationToken">キャンセルトークン</param>
-        private async Task SimulateRequestAsync(int failurePercentage, CancellationToken cancellationToken)
+        private async Task RunRequestsPerSecondAsync(int requestsPerSecond, Func<CancellationToken, Task> requestFactory, CancellationToken cancellationToken)
         {
-            await Task.Delay(50, cancellationToken).ConfigureAwait(false);
-            if (failurePercentage > 0 && Random.Shared.Next(0, 100) < failurePercentage)
+            try
             {
-                throw new InvalidOperationException("Simulated probabilistic failure.");
-            }
-        }
-
-        /// <summary>
-        /// リクエストをシミュレートし、一定確率で遅延を注入します
-        /// </summary>
-        /// <param name="triggerPercentage">遅延を発生させる確率（0～100）</param>
-        /// <param name="delayMilliseconds">遅延時間（ミリ秒）</param>
-        /// <param name="cancellationToken">キャンセルトークン</param>
-        private async Task SimulateLatencyAsync(int triggerPercentage, int delayMilliseconds, CancellationToken cancellationToken)
-        {
-            await Task.Delay(50, cancellationToken).ConfigureAwait(false);
-            if (triggerPercentage > 0 && Random.Shared.Next(0, 100) < triggerPercentage)
-            {
-                await Task.Delay(delayMilliseconds, cancellationToken).ConfigureAwait(false);
-            }
-        }
-
-        /// <summary>
-        /// CPUビジーループを実行してCPU使用率を上げます
-        /// SpinWaitを使用して効率的にCPUリソースを消費します
-        /// </summary>
-        /// <param name="duration">ビジーループの実行時間</param>
-        /// <param name="cancellationToken">キャンセルトークン</param>
-        private static void BusyWait(TimeSpan duration, CancellationToken cancellationToken)
-        {
-            var watch = Stopwatch.StartNew();
-            var spinner = new SpinWait();
-            while (watch.Elapsed < duration)
-            {
-                if (cancellationToken.IsCancellationRequested)
+                while (!cancellationToken.IsCancellationRequested)
                 {
-                    return;
-                }
+                    var windowStart = DateTime.UtcNow;
+                    var batch = new List<Task>(requestsPerSecond);
+                    for (int i = 0; i < requestsPerSecond; i++)
+                    {
+                        batch.Add(requestFactory(cancellationToken));
+                    }
 
-                spinner.SpinOnce();
+                    try
+                    {
+                        await Task.WhenAll(batch).ConfigureAwait(false);
+                    }
+                    catch (Exception ex) when (ex is not OperationCanceledException)
+                    {
+                        _logger.LogWarning(ex, "Scenario request batch encountered errors");
+                    }
+
+                    var remaining = TimeSpan.FromSeconds(1) - (DateTime.UtcNow - windowStart);
+                    if (remaining > TimeSpan.Zero)
+                    {
+                        await Task.Delay(remaining, cancellationToken).ConfigureAwait(false);
+                    }
+                }
+            }
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+            {
+                // expected when toggle stops the scenario
             }
         }
 
-        /// <summary>
-        /// メモリリークシナリオで確保した全メモリを解放します
-        /// シナリオ停止時に呼び出されます
-        /// </summary>
-        private void ReleaseAllMemory()
+        private async Task SendScenarioRequestAsync(HttpClient httpClient, Uri baseUri, string relativeUri, object payload, CancellationToken cancellationToken, bool logNonSuccess = true)
         {
-            foreach (var key in _memoryLeases.Keys)
+            var requestUri = new Uri(baseUri, relativeUri);
+            try
             {
-                _memoryLeases.TryRemove(key, out _);
+                using var response = await httpClient.PostAsJsonAsync(requestUri, payload, cancellationToken).ConfigureAwait(false);
+                if (logNonSuccess && !response.IsSuccessStatusCode)
+                {
+                    var content = await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
+                    _logger.LogWarning(
+                        "Scenario target {Endpoint} responded with {Status}: {Content}",
+                        requestUri,
+                        response.StatusCode,
+                        content);
+                }
             }
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Scenario request to {Endpoint} failed", requestUri);
+            }
+        }
+
+        private async Task ReleaseAllMemoryAsync(HttpClient httpClient, Uri baseUri)
+        {
+            try
+            {
+                var requestUri = new Uri(baseUri, ScenarioTargetEndpoints.MemoryLeakRelease);
+                using var response = await httpClient.PostAsync(requestUri, content: null).ConfigureAwait(false);
+                if (!response.IsSuccessStatusCode)
+                {
+                    var content = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                    _logger.LogWarning(
+                        "Memory leak release endpoint responded with {Status}: {Content}",
+                        response.StatusCode,
+                        content);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Memory leak release request failed");
+            }
+        }
+
+        private Uri ResolveBaseUri()
+        {
+            var httpContext = _httpContextAccessor.HttpContext
+                ?? throw new InvalidOperationException("Unable to resolve current HTTP context for scenario start.");
+
+            var request = httpContext.Request;
+            var host = request.Host;
+            if (!host.HasValue)
+            {
+                throw new InvalidOperationException("Current request does not specify a host header.");
+            }
+
+            var pathBase = request.PathBase.HasValue ? request.PathBase.Value : string.Empty;
+            if (!pathBase.EndsWith('/'))
+            {
+                pathBase += "/";
+            }
+
+            var builder = new UriBuilder
+            {
+                Scheme = request.Scheme,
+                Host = host.Host,
+                Port = host.Port ?? -1,
+                Path = pathBase
+            };
+
+            return builder.Uri;
         }
 
         /// <summary>

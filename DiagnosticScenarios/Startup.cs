@@ -44,6 +44,9 @@ namespace DiagnosticScenarios
             services.AddControllersWithViews()
                 .AddNewtonsoftJson();
 
+            services.AddHttpContextAccessor();
+            services.AddHttpClient();
+
             services.AddSingleton<IScenarioToggleService, ScenarioToggleService>();
         }
 
