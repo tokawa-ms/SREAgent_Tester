@@ -99,6 +99,11 @@ namespace DiagnosticScenarios.Services
                 throw new InvalidOperationException($"Scenario state not found for {scenario}.");
             }
 
+            if (request is null)
+            {
+                throw new ArgumentNullException(nameof(request));
+            }
+
             var duration = TimeSpan.FromMinutes(durationMinutes);
             if (duration <= TimeSpan.Zero)
             {

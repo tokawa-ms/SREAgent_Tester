@@ -1,22 +1,23 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Collections.Generic;
-using System.Linq;
+using System.Diagnostics;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using System.Threading;
 
-namespace testwebapi.Controllers
+namespace DiagnosticScenarios.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
     public class DiagScenarioController : ControllerBase
     {
-        object o1 = new object();
-        object o2 = new object();
+        private const int MinMemLeakKilobytes = 1;
+        private const int MaxMemLeakKilobytes = 10240;
 
-        private static Processor p = new Processor();
+        private readonly object _deadlockLock1 = new();
+        private readonly object _deadlockLock2 = new();
+        private static readonly MemoryLeakSimulator _memoryLeakSimulator = new();
         private readonly ILogger<DiagScenarioController> _logger;
 
         public DiagScenarioController(ILogger<DiagScenarioController> logger)
@@ -25,26 +26,29 @@ namespace testwebapi.Controllers
         }
 
         [HttpGet]
-        [Route("deadlock/")]
-        public ActionResult<string> deadlock()
+        [Route("deadlock")]
+        public ActionResult<string> Deadlock()
         {
-            (new System.Threading.Thread(() =>
-            {
-                DeadlockFunc();
-            })).Start();
+            var starterThread = new Thread(DeadlockFunc) { IsBackground = true };
+            starterThread.Start();
 
             Thread.Sleep(5000);
 
             var threads = new Thread[300];
-            for (int i = 0; i < 300; i++)
+            for (int i = 0; i < threads.Length; i++)
             {
-                (threads[i] = new Thread(() =>
+                threads[i] = new Thread(() =>
                 {
-                    lock (o1) { Thread.Sleep(100); }
-                })).Start();
+                    lock (_deadlockLock1)
+                    {
+                        Thread.Sleep(100);
+                    }
+                })
+                { IsBackground = true };
+                threads[i].Start();
             }
 
-            foreach (Thread thread in threads)
+            foreach (var thread in threads)
             {
                 thread.Join();
             }
@@ -54,70 +58,70 @@ namespace testwebapi.Controllers
 
         private void DeadlockFunc()
         {
-            lock (o1)
+            lock (_deadlockLock1)
             {
-                (new Thread(() =>
+                var competingThread = new Thread(() =>
                 {
-                    lock (o2) { Monitor.Enter(o1); }
-                })).Start();
+                    lock (_deadlockLock2)
+                    {
+                        Monitor.Enter(_deadlockLock1);
+                    }
+                })
+                { IsBackground = true };
+                competingThread.Start();
 
                 Thread.Sleep(2000);
-                Monitor.Enter(o2);
+                Monitor.Enter(_deadlockLock2);
             }
         }
 
         [HttpGet]
-        [Route("memspike/{seconds}")]
-        public ActionResult<string> memspike(int seconds)
+        [Route("memspike/{seconds:int}")]
+        public async Task<ActionResult<string>> MemSpike(int seconds, CancellationToken cancellationToken)
         {
             if (seconds < 1 || seconds > 1800)
             {
                 return BadRequest("seconds must be between 1 and 1800.");
             }
 
-            var watch = new Stopwatch();
-            watch.Start();
+            var deadline = DateTime.UtcNow.AddSeconds(seconds);
 
-            while (true)
+            while (DateTime.UtcNow < deadline)
             {
-                p = new Processor();
-                watch.Stop();
-                if (watch.ElapsedMilliseconds > seconds * 1000)
-                    break;
-                watch.Start();
+                cancellationToken.ThrowIfCancellationRequested();
 
-                int it = (2000 * 1000);
-                for (int i = 0; i < it; i++)
+                var processor = new Processor();
+                const int iterations = 2_000_000;
+                for (var i = 0; i < iterations; i++)
                 {
-                    p.ProcessTransaction(new Customer(Guid.NewGuid().ToString()));
+                    processor.ProcessTransaction(new Customer(Guid.NewGuid().ToString()));
                 }
 
-                Thread.Sleep(5000); // Sleep for 5 seconds before cleaning up
+                await Task.Delay(TimeSpan.FromSeconds(5), cancellationToken).ConfigureAwait(false);
 
-                // Cleanup
-                p = null;
-
-                // GC
+                processor = null;
                 GC.Collect();
                 GC.WaitForPendingFinalizers();
                 GC.Collect();
 
-                Thread.Sleep(5000); // Sleep for 5 seconds before spiking memory again
+                await Task.Delay(TimeSpan.FromSeconds(5), cancellationToken).ConfigureAwait(false);
             }
+
             return "success:memspike";
         }
 
         [HttpGet]
-        [Route("memleak/{kb}")]
-        public ActionResult<string> memleak(int kb)
+        [Route("memleak/{kilobytes:int}")]
+        public ActionResult<string> MemLeak(int kilobytes)
         {
-            int it = (kb * 1000) / 100;
-            for (int i = 0; i < it; i++)
+            if (kilobytes < MinMemLeakKilobytes || kilobytes > MaxMemLeakKilobytes)
             {
-                p.ProcessTransaction(new Customer(Guid.NewGuid().ToString()));
+                return BadRequest($"kilobytes must be between {MinMemLeakKilobytes} and {MaxMemLeakKilobytes}.");
             }
 
-            return "success:memleak";
+            _memoryLeakSimulator.Allocate(kilobytes);
+
+            return $"success:memleak ({kilobytes}KB retained)";
         }
 
         [HttpGet]
@@ -325,6 +329,27 @@ namespace testwebapi.Controllers
             // database that had similar latency.
             await Task.Delay(500);
             return new Customer(customerId);
+        }
+
+        private sealed class MemoryLeakSimulator
+        {
+            private readonly object _syncRoot = new();
+            private readonly List<Processor> _retainedProcessors = new();
+
+            public void Allocate(int kilobytes)
+            {
+                var processor = new Processor();
+                var iterations = Math.Max(1, (kilobytes * 1000) / 100);
+                for (var i = 0; i < iterations; i++)
+                {
+                    processor.ProcessTransaction(new Customer(Guid.NewGuid().ToString()));
+                }
+
+                lock (_syncRoot)
+                {
+                    _retainedProcessors.Add(processor);
+                }
+            }
         }
 
     }
