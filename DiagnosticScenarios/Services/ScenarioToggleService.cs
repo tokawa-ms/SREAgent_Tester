@@ -96,8 +96,9 @@ namespace DiagnosticScenarios.Services
         /// ScenarioTargetControllerのエンドポイントパスを定義する内部クラス
         /// </summary>
         /// <remarks>
-        /// このクラスは、トグルシナリオがHTTPリクエストを送信する際の
-        /// ターゲットエンドポイントのパスを一元管理します
+        /// このクラスは、トグルシナリオがHTTPクライアントを使用して
+        /// ScenarioTargetControllerにリクエストを送信する際のエンドポイントパスを一元管理します。
+        /// これらの定数はリクエストURLの構築に使用され、内部的なシナリオ通信を実現します。
         /// </remarks>
         private static class ScenarioTargetEndpoints
         {
