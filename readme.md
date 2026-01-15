@@ -1,122 +1,55 @@
 # SRE Agent Tester
 
-このサンプルアプリケーションは、.NET 8.0 で構築されたシンプルなアプリケーションです。
-SRE Agent をテストするための複数の障害モードをシミュレーションするための UI と API を提供します。
+.NET 8 / ASP.NET Core �ō\�z�����f�f�V�i���I�W�ł��B`/Home/Index` ���瑦�����s�V�i���I�A`/Home/ToggleScenarios` ����o�b�N�O���E���h�œ���������p���I�ȃe�X�g�V�i���I�𐧌䂵�ASRE Agent �⃂�j�^�����O�p�C�v���C�������S�Ɍ��؂ł��܂��B
 
-## ソースコードの取得
+## �Z�b�g�A�b�v
+1. ���|�W�g�����N���[�����A�v���W�F�N�g���[�g (`SREAgent_Tester`) �ֈړ����܂��B
+2. �ˑ��֌W�𕜌����r���h���܂��B
+   ```bash
+   dotnet restore
+   dotnet build
+   ```
+3. �A�v�����N�����܂��B
+   ```bash
+   dotnet run --project DiagnosticScenarios/DiagnosticScenarios.csproj
+   ```
+4. �u���E�U�[�� `http://localhost:5000/` ���J���A�ړI�̃y�[�W�ɃA�N�Z�X���܂��B
 
-このコードをローカルマシンで取得するには、リポジトリをクローンして SREAgent_Tester ディレクトリに移動してください。
+Docker / Azure App Service �Ȃǂ̃z�X�e�B���O���]���ʂ藘�p�\�ł��B
 
-## ビルドと実行
+### Docker �R���e�i�ł̎��s
+1. ���[�g�� Docker �C���[�W���r���h���܂��B
+   ```bash
+   docker build -t sre-agent-tester .
+   ```
+2. �|�[�g���z�X�g�Ɍ��J���ċN�����܂� (��: 8080)�B
+   ```bash
+   docker run --rm -p 8080:8080 -e ASPNETCORE_URLS=http://+:8080 sre-agent-tester
+   ```
+   - HTTPS ���s�v�Ȃ��� `ASPNETCORE_URLS` �� HTTP �|�[�g�̂݌��J�B
+   - ����� `appsettings.Development.json` ���g���ꍇ�� `--env ASPNETCORE_ENVIRONMENT=Development` ��t�^���܂��B
+3. �����R���e�i��ˑ��T�[�r�X������Ȃ� `docker-compose up -d` �œ����� Compose ��`�𗘗p�ł��܂��B
 
-### 標準的な方法
+��~����ۂ� `Ctrl+C` �ŏI�����邩�A�ʃ^�[�~�i������ `docker stop <CONTAINER_ID>` �����s���Ă��������B
 
-ソースコードをダウンロード後、以下のコマンドで webapi を簡単に実行できます：
+## UI �ƃV�i���I
+- `Home/Index` : ��O�o�[�X�g�A�������X�p�C�N�ACPU �����ׂȂǑ������΂��� API ���Ăяo���f���J�[�h�B
+- `Home/ToggleScenarios` : ProbabilisticFailure / CpuSpike / MemoryLeak / ProbabilisticLatency ���g�O���ŊJ�n���A�I���\�莞������s��Ԃ��m�F�ł��܂��B
 
-```dotnetcli
-dotnet build
-dotnet run
-```
+�e�V�i���I�� API�A�p�����[�^�[�A���p��̒��ӂ� `docs/scenarios.md` �Ɉꗗ�����Ă��܂��B�^�p�O�ɕK���m�F���Ă��������B
 
-### Docker コンテナでの実行
+## ��ȃR�[�h
+- `DiagnosticScenarios/Controllers/DiagScenarioController.cs`
+  - �������s�V�i���I API�B���������[�N��X�p�C�N�������X���b�h���S�Ƀ��t�@�N�^�����O�ς݁B
+- `DiagnosticScenarios/Controllers/ScenarioToggleController.cs`
+  - �o�b�N�O���E���h���s�V�i���I�̊J�n / ��~�G���h�|�C���g�B
+- `DiagnosticScenarios/Services/ScenarioToggleService.cs`
+  - �e�g�O���V�i���I�̃��[�J�[���[�v�E��ԊǗ��������B
 
-このアプリケーションは Docker コンテナとしても実行できます：
+## ���ӎ���
+- ���ׂăe�X�g / ���؊���p�ł��B**�{�Ԋ��ł͐�΂Ɏ��s���Ȃ��ł��������B**
+- �z��ȏ�̕��ׂ�����邽�߁A�p�����[�^�[�͊��� CPU / �������ɉ����Ē������Ă��������B
+- ���s���� `dotnet-counters`, `dotnet-trace` �ȂǂŃ����^�C���w�W���̎悷��ƌ��ʓI�ł��B
 
-```bash
-# Dockerイメージのビルド
-docker build -t diagnostic-scenarios .
-
-# コンテナの実行
-docker run -p 8080:80 diagnostic-scenarios
-```
-
-または、Docker Compose を使用：
-
-```bash
-docker-compose up -d
-```
-
-## Azure App Service での実行
-
-Azure App Service での実行も可能です。Azure Portal から新しい Web アプリを作成し、ソースコードをデプロイしてください。
-
-## 利用可能な Web UI
-
-このアプリケーションには、障害シナリオをトリガーするための Web UI が用意されています。ブラウザで以下の URL にアクセスしてください：
-
-````
-http://localhost:5000/
-
-## 利用可能なエンドポイント
-
-このアプリケーションは特定の URL にアクセスすることで様々な問題のあるシナリオをトリガーします。
-
-### Deadlock（デッドロック）
-
-```http
-http://localhost:5000/api/diagscenario/deadlock
-````
-
-このメソッドはターゲットをハングアップさせ、多くのスレッドを蓄積させます。
-
-### High CPU usage（高 CPU 使用率）
-
-```http
-http://localhost:5000/api/diagscenario/highcpu/{milliseconds}
-```
-
-指定した{milliseconds}の間、ターゲットに大量の CPU を使用させます。
-
-### Memory leak（メモリリーク）
-
-```http
-http://localhost:5000/api/diagscenario/memleak/{kb}
-```
-
-このメソッドは{kb}で指定した量のメモリをリークさせます。
-
-### Memory usage spike（メモリ使用量スパイク）
-
-```http
-http://localhost:5000/api/diagscenario/memspike/{seconds}
-```
-
-指定した秒数にわたって断続的なメモリスパイクを発生させます。メモリ使用量がベースラインからスパイクし、再びベースラインに戻る動作を数回繰り返します。
-
-### Exception（例外）
-
-```http
-http://localhost:5000/api/diagscenario/exception
-```
-
-意図的に例外を発生させて、例外処理やエラーログの診断に使用します。
-
-### Task Wait（タスク待機 - 非推奨パターン）
-
-```http
-http://localhost:5000/api/diagscenario/taskwait
-```
-
-Task.Wait()や Task.Result を使用した非推奨パターンを実装しており、スレッドプール枯渇の問題を発生させます。
-
-### Task Sleep Wait（タスク睡眠待機 - 非推奨パターン）
-
-```http
-http://localhost:5000/api/diagscenario/tasksleepwait
-```
-
-タスクが完了するまでループでスリープする非推奨パターンで、スレッドプールの枯渇を発生させます。
-
-### Task Async Wait（タスク非同期待機 - 推奨パターン）
-
-```http
-http://localhost:5000/api/diagscenario/taskasyncwait
-```
-
-await キーワードを使用した正しい非同期パターンの実装例です。
-
-## 参考文献・参照実装
-
-このアプリケーションの実装にあたり、以下の文献や実装を参照し、引用・改変しました。
-
-[Diagnostic scenarios sample debug target](https://github.com/dotnet/samples/tree/main/core/diagnostics/DiagnosticScenarios)（© Microsoft Corporation.）を改変して実装。
+## �Q�l
+���̃A�v���� [Diagnostic scenarios sample debug target](https://github.com/dotnet/samples/tree/main/core/diagnostics/DiagnosticScenarios) ���x�[�X�ɃJ�X�^�}�C�Y���Ă��܂��B
