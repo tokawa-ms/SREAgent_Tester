@@ -65,7 +65,7 @@ dotnet restore
 SREAgent_Tester/
 ├── DiagnosticScenarios/              # メインプロジェクト
 │   ├── Controllers/                  # MVCコントローラー
-│   │   ├── DiagScenarioController.cs      # 即座実行型API
+│   │   ├── DiagnosticScenarios.cs          # DiagScenarioController - 即座実行型API
 │   │   ├── ScenarioToggleController.cs    # トグル型API
 │   │   ├── HomeController.cs              # UIコントローラー
 │   │   └── ValuesController.cs            # サンプルAPI
@@ -192,7 +192,7 @@ export ASPNETCORE_URLS=http://+:8080
 
 **手順:**
 
-1. **DiagScenarioController.csにメソッドを追加**
+1. **DiagScenarioController（DiagnosticScenarios.cs）にメソッドを追加**
 
 ```csharp
 /// <summary>
