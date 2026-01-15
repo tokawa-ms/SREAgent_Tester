@@ -449,7 +449,7 @@ namespace DiagnosticScenarios.Controllers
         /// <remarks>
         /// 500msの固定遅延で実際のデータベースクエリのレイテンシをシミュレートします
         /// </remarks>
-        async Task<Customer> PretendQueryCustomerFromDbAsync(string customerId)
+        private async Task<Customer> PretendQueryCustomerFromDbAsync(string customerId)
         {
             // To keep the demo app easy to set up and performing consistently we have replaced a real database query
             // with a fixed delay of 500ms. The impact on application performance should be similar to using a real
@@ -489,9 +489,13 @@ namespace DiagnosticScenarios.Controllers
 
     }
 
-    class Customer
+    /// <summary>
+    /// テストデータ用の顧客クラス
+    /// メモリスパイクやリークシナリオで使用されます
+    /// </summary>
+    internal class Customer
     {
-        private string id;
+        private readonly string id;
 
         public Customer(string id)
         {
@@ -503,7 +507,7 @@ namespace DiagnosticScenarios.Controllers
     /// テストデータ用の顧客キャッシュクラス
     /// メモリリークシミュレーションで顧客オブジェクトを蓄積します
     /// </summary>
-    class CustomerCache
+    internal class CustomerCache
     {
         private List<Customer> cache = new List<Customer>();
 
@@ -517,7 +521,7 @@ namespace DiagnosticScenarios.Controllers
     /// テストデータ用のプロセッサクラス
     /// 顧客トランザクションを処理し、メモリを消費します
     /// </summary>
-    class Processor
+    internal class Processor
     {
         private CustomerCache cache = new CustomerCache();
 
