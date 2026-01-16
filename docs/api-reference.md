@@ -5,6 +5,7 @@
 ## 目次
 
 - [即座実行型シナリオAPI](#即座実行型シナリオapi)
+- [外部負荷ツール用API](#外部負荷ツール用api)
 - [トグル型シナリオAPI](#トグル型シナリオapi)
 - [共通仕様](#共通仕様)
 
@@ -260,6 +261,204 @@ curl http://localhost:5000/api/DiagScenario/taskasyncwait
 **説明:**
 - スレッドをブロックしない正しいパターン
 - 他のtaskwaitエンドポイントとの比較に使用
+
+---
+
+## 外部負荷ツール用API
+
+ベースURL: `/api/DirectTest`
+
+これらのエンドポイントは、JMeterやApache Benchなどの外部負荷テストツールから直接呼び出すことを想定して設計されています。全てGETメソッドでクエリパラメーターを使用するため、負荷テストツールとの統合が容易です。
+
+### OpenAPI/Swagger ドキュメント
+
+詳細なAPIスキーマは、アプリケーション実行時に以下のURLで確認できます：
+- Swagger UI: `http://localhost:5000/swagger`
+- OpenAPI JSON: `http://localhost:5000/swagger/v1/swagger.json`
+
+### ランダムな応答遅延
+
+0から指定値までのランダムな遅延を発生させます。レイテンシのばらつきをシミュレートするのに最適です。
+
+**エンドポイント:** `GET /api/DirectTest/RandomLatency`
+
+**クエリパラメータ:**
+- `maxLatencyInMilliSeconds` (整数): 最大遅延時間（ミリ秒）
+  - 範囲: 0～30000
+
+**レスポンス:**
+- 成功時: `200 OK` - `"success:randomlatency (max=XXXms, actual=YYYms)"`
+- エラー時: `400 Bad Request` - `"maxLatencyInMilliSeconds must be between 0 and 30000."`
+
+**使用例:**
+```bash
+# 最大1秒のランダム遅延
+curl "http://localhost:5000/api/DirectTest/RandomLatency?maxLatencyInMilliSeconds=1000"
+
+# JMeterの場合
+# HTTP Request Sampler
+# Protocol: http
+# Server Name: localhost
+# Port: 5000
+# Path: /api/DirectTest/RandomLatency
+# Parameters:
+#   - Name: maxLatencyInMilliSeconds, Value: 1000
+```
+
+**説明:**
+- 実際の遅延時間は0からmaxLatencyInMilliSecondsの間でランダムに決定
+- レスポンスに実際の遅延時間が含まれる
+- レイテンシの分布を観察する負荷テストに有用
+
+---
+
+### ランダムな例外
+
+指定された確率で例外を発生させ、500エラーを返します。エラー率のシミュレーションに最適です。
+
+**エンドポイント:** `GET /api/DirectTest/RandomException`
+
+**クエリパラメータ:**
+- `exceptionPercentage` (整数): 例外発生確率（パーセント）
+  - 範囲: 0～100
+
+**レスポンス:**
+- 成功時: `200 OK` - `"success:randomexception (exceptionPercentage=XX%, no exception)"`
+- 例外発生時: `500 Internal Server Error` - エラーメッセージ
+- エラー時: `400 Bad Request` - `"exceptionPercentage must be between 0 and 100."`
+
+**使用例:**
+```bash
+# 10%の確率で例外を発生
+curl "http://localhost:5000/api/DirectTest/RandomException?exceptionPercentage=10"
+
+# 必ず成功（エラーなし）
+curl "http://localhost:5000/api/DirectTest/RandomException?exceptionPercentage=0"
+
+# 必ず失敗（500エラー）
+curl "http://localhost:5000/api/DirectTest/RandomException?exceptionPercentage=100"
+```
+
+**説明:**
+- 乱数生成により確率的に例外を発生させる
+- エラー率監視やSLO計算の検証に使用
+- 例外が発生した場合、500 Internal Server Errorが返される
+
+---
+
+### メモリ確保
+
+指定サイズのメモリを指定時間保持します。メモリ使用量の増加をシミュレートします。
+
+**エンドポイント:** `GET /api/DirectTest/HighMem`
+
+**クエリパラメータ:**
+- `secondsToKeepMem` (整数): メモリを保持する秒数
+  - 範囲: 1～300
+- `keepMemSize` (整数): 確保するメモリサイズ（MB）
+  - 範囲: 1～2048
+
+**レスポンス:**
+- 成功時: `200 OK` - `"success:highmem (kept XXXmb for YYY seconds)"`
+- エラー時: `400 Bad Request` - パラメータエラーメッセージ
+
+**使用例:**
+```bash
+# 100MBを10秒間保持
+curl "http://localhost:5000/api/DirectTest/HighMem?secondsToKeepMem=10&keepMemSize=100"
+
+# 1GBを30秒間保持（負荷が高い）
+curl "http://localhost:5000/api/DirectTest/HighMem?secondsToKeepMem=30&keepMemSize=1024"
+```
+
+**説明:**
+- byte配列を使用してメモリを確保
+- 指定時間経過後、自動的にメモリが解放される
+- メモリ監視ツールやアラートのテストに使用
+- 注意: 環境のメモリ容量を超えないよう注意してください
+
+---
+
+### CPU高負荷
+
+指定時間、CPUビジーループを実行してCPU使用率を上げます。
+
+**エンドポイント:** `GET /api/DirectTest/HighCPU`
+
+**クエリパラメータ:**
+- `millisecondsToKeepHighCPU` (整数): CPU高負荷を維持するミリ秒数
+  - 範囲: 100～60000
+
+**レスポンス:**
+- 成功時: `200 OK` - `"success:highcpu (ran for XXXms)"`
+- エラー時: `400 Bad Request` - `"millisecondsToKeepHighCPU must be between 100 and 60000."`
+
+**使用例:**
+```bash
+# 5秒間CPU高負荷
+curl "http://localhost:5000/api/DirectTest/HighCPU?millisecondsToKeepHighCPU=5000"
+
+# 30秒間CPU高負荷
+curl "http://localhost:5000/api/DirectTest/HighCPU?millisecondsToKeepHighCPU=30000"
+```
+
+**説明:**
+- CPUビジーループを実行してCPUを占有
+- CPU使用率監視ツールやパフォーマンスアラートのテストに使用
+- 実際の実行時間がレスポンスに含まれる
+
+---
+
+### 負荷テストツールでの活用例
+
+#### JMeterでの使用
+
+**Thread Group設定:**
+```
+Number of Threads: 100
+Ramp-Up Period: 10
+Loop Count: 100
+```
+
+**HTTP Request Sampler 1 - ランダムレイテンシ:**
+```
+Protocol: http
+Server Name: localhost
+Port: 5000
+Path: /api/DirectTest/RandomLatency
+Parameters:
+  - maxLatencyInMilliSeconds: 2000
+```
+
+**HTTP Request Sampler 2 - ランダム例外:**
+```
+Protocol: http
+Server Name: localhost
+Port: 5000
+Path: /api/DirectTest/RandomException
+Parameters:
+  - exceptionPercentage: 5
+```
+
+#### Apache Benchでの使用
+
+```bash
+# 100並列、1000リクエスト
+ab -n 1000 -c 100 "http://localhost:5000/api/DirectTest/RandomLatency?maxLatencyInMilliSeconds=500"
+
+# エラー率5%でテスト
+ab -n 1000 -c 50 "http://localhost:5000/api/DirectTest/RandomException?exceptionPercentage=5"
+```
+
+#### curlでの簡易負荷テスト
+
+```bash
+# 10回並列実行
+for i in {1..10}; do
+  curl "http://localhost:5000/api/DirectTest/RandomLatency?maxLatencyInMilliSeconds=1000" &
+done
+wait
+```
 
 ---
 
