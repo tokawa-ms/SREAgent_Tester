@@ -1,3 +1,5 @@
+[English](./scenarios-en.md) | 日本語
+
 # シナリオ一覧
 
 このドキュメントでは、SREAgent_Testerで利用可能な全てのシナリオの詳細を説明します。
