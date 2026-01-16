@@ -1,9 +1,15 @@
 @using Microsoft.AspNetCore.Mvc.Localization
 @using Microsoft.Extensions.Localization
+@using Microsoft.AspNetCore.Localization
 @inject IHtmlLocalizer<DiagnosticScenarios.Resources.SharedResources> SharedLocalizer
 
+@{
+    var requestCultureFeature = Context.Features.Get<IRequestCultureFeature>();
+    var currentCulture = requestCultureFeature?.RequestCulture.Culture.TwoLetterISOLanguageName ?? "ja";
+}
+
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="@currentCulture">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />

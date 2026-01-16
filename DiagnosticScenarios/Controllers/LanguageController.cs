@@ -8,7 +8,6 @@ namespace DiagnosticScenarios.Controllers
     /// <summary>
     /// 言語切り替え機能を提供するコントローラー
     /// </summary>
-    [ApiController]
     [Route("[controller]")]
     public class LanguageController : Controller
     {
