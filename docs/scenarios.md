@@ -5,6 +5,7 @@
 ## 目次
 
 - [即時実行型シナリオ](#即時実行型シナリオ)
+- [外部負荷ツール用API](#外部負荷ツール用api)
 - [トグル型シナリオ](#トグル型シナリオ)
 - [実行時の注意事項](#実行時の注意事項)
 - [ユースケース別推奨シナリオ](#ユースケース別推奨シナリオ)
@@ -33,6 +34,40 @@
 | taskasyncwait | 正しい await パターンの比較用サンプル | なし | 約0.5秒 |
 
 詳細な使用方法とサンプルについては、[API リファレンス](api-reference.md)を参照してください。
+
+---
+
+## 外部負荷ツール用API
+
+ベースURL: `/api/DirectTest`
+
+これらのエンドポイントは、JMeterやApache Benchなどの外部負荷テストツールから直接呼び出すことを想定して設計されています。シンプルなクエリパラメーターで様々な負荷パターンを生成できます。
+
+### エンドポイント一覧表
+
+| エンドポイント | 説明 | 主なパラメーター | 実行時間の目安 |
+| --- | --- | --- | --- |
+| RandomLatency | 0～指定値の範囲でランダムな応答遅延を発生 | maxLatencyInMilliSeconds (0-30000) | パラメータ通り |
+| RandomException | 指定確率で例外を発生させ500エラーを返す | exceptionPercentage (0-100) | 瞬時 |
+| HighMem | 指定サイズのメモリを指定時間保持 | secondsToKeepMem (1-300), keepMemSize (1-2048 MB) | パラメータ通り |
+| HighCPU | 指定時間CPUビジーループを実行 | millisecondsToKeepHighCPU (100-60000) | パラメータ通り |
+
+**使用例（JMeter）:**
+```
+# ランダムレイテンシ
+GET http://localhost:5000/api/DirectTest/RandomLatency?maxLatencyInMilliSeconds=1000
+
+# 10%の確率でエラー
+GET http://localhost:5000/api/DirectTest/RandomException?exceptionPercentage=10
+
+# 100MBを10秒間保持
+GET http://localhost:5000/api/DirectTest/HighMem?secondsToKeepMem=10&keepMemSize=100
+
+# 5秒間CPU高負荷
+GET http://localhost:5000/api/DirectTest/HighCPU?millisecondsToKeepHighCPU=5000
+```
+
+詳細な仕様については、[API リファレンス](api-reference.md#外部負荷ツール用api)を参照してください。
 
 ---
 
