@@ -1,0 +1,309 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  
+  <!-- Navigation -->
+  <data name="Nav.Title" xml:space="preserve">
+    <value>診断シナリオテスター</value>
+  </data>
+  <data name="Nav.Home" xml:space="preserve">
+    <value>ホーム</value>
+  </data>
+  <data name="Nav.ToggleScenarios" xml:space="preserve">
+    <value>継続的負荷テスト</value>
+  </data>
+  <data name="Nav.ApiDocs" xml:space="preserve">
+    <value>API ドキュメント</value>
+  </data>
+  
+  <!-- Common -->
+  <data name="Common.Warning" xml:space="preserve">
+    <value>注意</value>
+  </data>
+  <data name="Common.Error" xml:space="preserve">
+    <value>エラー</value>
+  </data>
+  <data name="Common.Success" xml:space="preserve">
+    <value>成功</value>
+  </data>
+  <data name="Common.Execute" xml:space="preserve">
+    <value>実行</value>
+  </data>
+  <data name="Common.Running" xml:space="preserve">
+    <value>実行中...</value>
+  </data>
+  <data name="Common.Stopped" xml:space="preserve">
+    <value>停止中</value>
+  </data>
+  <data name="Common.Active" xml:space="preserve">
+    <value>稼働中</value>
+  </data>
+  
+  <!-- Home Page -->
+  <data name="Home.Title" xml:space="preserve">
+    <value>ホーム</value>
+  </data>
+  <data name="Home.PageTitle" xml:space="preserve">
+    <value>診断シナリオテスター</value>
+  </data>
+  <data name="Home.WarningMessage" xml:space="preserve">
+    <value>これらのシナリオは開発・テスト環境でのみ実行してください。本番環境では絶対に実行しないでください。</value>
+  </data>
+  
+  <!-- Exception Burst -->
+  <data name="ExceptionBurst.Title" xml:space="preserve">
+    <value>例外バースト</value>
+  </data>
+  <data name="ExceptionBurst.Description" xml:space="preserve">
+    <value>指定した秒数の間、1秒あたり指定回数の例外を発生させ続けます。</value>
+  </data>
+  <data name="ExceptionBurst.Seconds" xml:space="preserve">
+    <value>秒数</value>
+  </data>
+  <data name="ExceptionBurst.PerSecond" xml:space="preserve">
+    <value>1秒あたり</value>
+  </data>
+  <data name="ExceptionBurst.Times" xml:space="preserve">
+    <value>回</value>
+  </data>
+  <data name="ExceptionBurst.Execute" xml:space="preserve">
+    <value>例外バースト実行</value>
+  </data>
+  
+  <!-- Probabilistic Load -->
+  <data name="ProbabilisticLoad.Title" xml:space="preserve">
+    <value>確率的例外ロード</value>
+  </data>
+  <data name="ProbabilisticLoad.Description" xml:space="preserve">
+    <value>N秒間、秒間M回のバックエンド呼び出しを実行し、そのうちX%で例外を発生させます。</value>
+  </data>
+  <data name="ProbabilisticLoad.Duration" xml:space="preserve">
+    <value>継続時間</value>
+  </data>
+  <data name="ProbabilisticLoad.RequestsPerSecond" xml:space="preserve">
+    <value>1秒あたり</value>
+  </data>
+  <data name="ProbabilisticLoad.Requests" xml:space="preserve">
+    <value>リクエスト</value>
+  </data>
+  <data name="ProbabilisticLoad.ErrorRate" xml:space="preserve">
+    <value>例外率</value>
+  </data>
+  <data name="ProbabilisticLoad.Execute" xml:space="preserve">
+    <value>確率的ロード実行</value>
+  </data>
+  
+  <!-- Deadlock -->
+  <data name="Deadlock.Title" xml:space="preserve">
+    <value>デッドロック</value>
+  </data>
+  <data name="Deadlock.Description" xml:space="preserve">
+    <value>デッドロック状況をシミュレートします。複数のスレッドが互いにロックを待機する状況を作成します。</value>
+  </data>
+  <data name="Deadlock.Execute" xml:space="preserve">
+    <value>デッドロック実行</value>
+  </data>
+  
+  <!-- Memory Spike -->
+  <data name="MemorySpike.Title" xml:space="preserve">
+    <value>メモリスパイク</value>
+  </data>
+  <data name="MemorySpike.Description" xml:space="preserve">
+    <value>指定した秒数間メモリ使用量を急激に増加させます。</value>
+  </data>
+  <data name="MemorySpike.Execute" xml:space="preserve">
+    <value>メモリスパイク実行</value>
+  </data>
+  
+  <!-- Memory Leak -->
+  <data name="MemoryLeak.Title" xml:space="preserve">
+    <value>メモリリーク</value>
+  </data>
+  <data name="MemoryLeak.Description" xml:space="preserve">
+    <value>指定したサイズ分のメモリリークをシミュレートします。</value>
+  </data>
+  <data name="MemoryLeak.KB" xml:space="preserve">
+    <value>KB数</value>
+  </data>
+  <data name="MemoryLeak.Execute" xml:space="preserve">
+    <value>メモリリーク実行</value>
+  </data>
+  
+  <!-- Exception -->
+  <data name="Exception.Title" xml:space="preserve">
+    <value>例外発生</value>
+  </data>
+  <data name="Exception.Description" xml:space="preserve">
+    <value>意図的に例外を発生させて、エラーハンドリングをテストします。</value>
+  </data>
+  <data name="Exception.Execute" xml:space="preserve">
+    <value>例外実行</value>
+  </data>
+  
+  <!-- High CPU -->
+  <data name="HighCpu.Title" xml:space="preserve">
+    <value>高CPU使用率</value>
+  </data>
+  <data name="HighCpu.Description" xml:space="preserve">
+    <value>指定したミリ秒間CPU使用率を100%近くまで上げます。</value>
+  </data>
+  <data name="HighCpu.Milliseconds" xml:space="preserve">
+    <value>ミリ秒</value>
+  </data>
+  <data name="HighCpu.Execute" xml:space="preserve">
+    <value>高CPU実行</value>
+  </data>
+  
+  <!-- Task Wait -->
+  <data name="TaskWait.Title" xml:space="preserve">
+    <value>Task.Wait()</value>
+  </data>
+  <data name="TaskWait.Description" xml:space="preserve">
+    <value>Task.Wait()を使用してスレッドプールの飢餓状態をシミュレートします。</value>
+  </data>
+  <data name="TaskWait.Execute" xml:space="preserve">
+    <value>Task.Wait()実行</value>
+  </data>
+  
+  <!-- Task Sleep Wait -->
+  <data name="TaskSleepWait.Title" xml:space="preserve">
+    <value>Task Sleep Wait</value>
+  </data>
+  <data name="TaskSleepWait.Description" xml:space="preserve">
+    <value>Thread.Sleep()を使用してタスクの完了を待機する非効率的な方法をシミュレートします。</value>
+  </data>
+  <data name="TaskSleepWait.Execute" xml:space="preserve">
+    <value>Task Sleep Wait実行</value>
+  </data>
+  
+  <!-- Task Async Wait -->
+  <data name="TaskAsyncWait.Title" xml:space="preserve">
+    <value>Task Async Wait (正常)</value>
+  </data>
+  <data name="TaskAsyncWait.Description" xml:space="preserve">
+    <value>awaitキーワードを使用した正しい非同期処理の例を実行します。</value>
+  </data>
+  <data name="TaskAsyncWait.Execute" xml:space="preserve">
+    <value>Task Async Wait実行</value>
+  </data>
+  
+  <!-- Toggle Scenarios Page -->
+  <data name="ToggleScenarios.Title" xml:space="preserve">
+    <value>継続的負荷テスト</value>
+  </data>
+  <data name="ToggleScenarios.Description" xml:space="preserve">
+    <value>各カードのトグルをオンにすると負荷シナリオがバックグラウンドで開始され、指定した時間経過後に自動で停止します。</value>
+  </data>
+  <data name="ToggleScenarios.Warning" xml:space="preserve">
+    <value>これらのシナリオはテスト用途です。現環境のリソース状況に応じて値を調整してください。</value>
+  </data>
+  <data name="ToggleScenarios.ProbabilisticFailure" xml:space="preserve">
+    <value>[PF] 確率的失敗ロード</value>
+  </data>
+  <data name="ToggleScenarios.CpuSpike" xml:space="preserve">
+    <value>[CPU] CPU スパイク</value>
+  </data>
+  <data name="ToggleScenarios.MemoryLeak" xml:space="preserve">
+    <value>[MEM] メモリリーク</value>
+  </data>
+  <data name="ToggleScenarios.ProbabilisticLatency" xml:space="preserve">
+    <value>[DELAY] 確率的遅延</value>
+  </data>
+  <data name="ToggleScenarios.DurationMinutes" xml:space="preserve">
+    <value>継続時間 (分)</value>
+  </data>
+  <data name="ToggleScenarios.RequestsPerSecond" xml:space="preserve">
+    <value>1秒あたりのアクセス数</value>
+  </data>
+  <data name="ToggleScenarios.FailurePercentage" xml:space="preserve">
+    <value>失敗率 (%)</value>
+  </data>
+  <data name="ToggleScenarios.IntervalSeconds" xml:space="preserve">
+    <value>発動間隔 (秒)</value>
+  </data>
+  <data name="ToggleScenarios.TriggerPercentage" xml:space="preserve">
+    <value>発動率 (%)</value>
+  </data>
+  <data name="ToggleScenarios.SpikeSeconds" xml:space="preserve">
+    <value>スパイク時間 (秒)</value>
+  </data>
+  <data name="ToggleScenarios.MemoryMegabytes" xml:space="preserve">
+    <value>リークサイズ (MB)</value>
+  </data>
+  <data name="ToggleScenarios.HoldSeconds" xml:space="preserve">
+    <value>保持時間 (秒)</value>
+  </data>
+  <data name="ToggleScenarios.DelayMilliseconds" xml:space="preserve">
+    <value>遅延時間 (ms)</value>
+  </data>
+  
+  <!-- Footer -->
+  <data name="Footer.Copyright" xml:space="preserve">
+    <value>© 2025 - 診断シナリオテスター</value>
+  </data>
+  
+  <!-- Language -->
+  <data name="Language.Japanese" xml:space="preserve">
+    <value>日本語</value>
+  </data>
+  <data name="Language.English" xml:space="preserve">
+    <value>English</value>
+  </data>
+</root>

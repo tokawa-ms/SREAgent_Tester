@@ -1,3 +1,5 @@
+[English](./api-reference-en.md) | 日本語
+
 # API リファレンス
 
 このドキュメントでは、SREAgent_Testerが提供する全てのAPIエンドポイントの詳細を説明します。

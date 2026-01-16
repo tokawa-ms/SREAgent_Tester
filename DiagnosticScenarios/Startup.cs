@@ -1,12 +1,16 @@
 ﻿using System;
+using System.Globalization;
 using System.IO;
 using System.Reflection;
 using DiagnosticScenarios.Services;
+using DiagnosticScenarios.Resources;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Localization;
 using Microsoft.OpenApi;
 
 namespace DiagnosticScenarios
@@ -38,13 +42,38 @@ namespace DiagnosticScenarios
         /// <param name="services">サービスコレクション（DIコンテナ）</param>
         public void ConfigureServices(IServiceCollection services)
         {
+            // ローカライゼーションサポートの追加
+            services.AddLocalization();
+            
             services.AddControllersWithViews()
-                .AddNewtonsoftJson();
+                .AddNewtonsoftJson()
+                .AddViewLocalization()
+                .AddDataAnnotationsLocalization();
 
             services.AddHttpContextAccessor();
             services.AddHttpClient();
 
             services.AddSingleton<IScenarioToggleService, ScenarioToggleService>();
+
+            // サポートするカルチャーの設定
+            var supportedCultures = new[]
+            {
+                new CultureInfo("ja"),
+                new CultureInfo("en")
+            };
+
+            services.Configure<RequestLocalizationOptions>(options =>
+            {
+                options.DefaultRequestCulture = new RequestCulture("ja");
+                options.SupportedCultures = supportedCultures;
+                options.SupportedUICultures = supportedCultures;
+                
+                // クッキーベースのロケール選択を優先
+                options.RequestCultureProviders.Insert(0, new CookieRequestCultureProvider
+                {
+                    CookieName = "SREAgentTester.Culture"
+                });
+            });
 
             // Swagger/OpenAPIの構成
             services.AddSwaggerGen(options =>
@@ -94,6 +123,9 @@ namespace DiagnosticScenarios
             // app.UseHttpsRedirection();
 
             app.UseStaticFiles();
+
+            // ローカライゼーションミドルウェアの有効化
+            app.UseRequestLocalization();
 
             app.UseRouting();
 

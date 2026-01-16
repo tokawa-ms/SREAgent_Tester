@@ -1,3 +1,5 @@
+[English](./architecture-en.md) | 日本語
+
 # アーキテクチャ概要
 
 このドキュメントでは、SREAgent_Testerの全体的なアーキテクチャと設計思想について説明します。
