@@ -1,3 +1,5 @@
+[English](./readme-en.md) | 日本語
+
 # SRE Agent Tester
 
 .NET 8 / ASP.NET Core で構築した診断シナリオアプリです。`/Home/Index` から即時実行シナリオ、`/Home/ToggleScenarios` からバックグラウンドで動き続ける継続的なテストシナリオを制御し、SRE Agent のモニタリングパイプラインを安全に検証できます。

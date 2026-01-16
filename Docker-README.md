@@ -1,3 +1,5 @@
+[English](./Docker-README-en.md) | 日本語
+
 # DiagnosticScenarios Docker Setup
 
 このプロジェトは Docker コンテナとして実行することができます。
