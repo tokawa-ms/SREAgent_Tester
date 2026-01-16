@@ -38,13 +38,22 @@ Docker / Azure App Service などのホスティングも従来通り利用可�
 
 - `Home/Index` : 例外バースト、メモリスパイク、CPU 高負荷など即時発火する API を呼び出すデモカード。
 - `Home/ToggleScenarios` : ProbabilisticFailure / CpuSpike / MemoryLeak / ProbabilisticLatency をトグルで開始し、予定時刻と実行状態を確認できます。
+- `/api/DirectTest` : JMeter などの外部負荷ツール向けのシンプルな API エンドポイント。詳細は `docs/directtest-api.md` を参照してください。
 
 各シナリオの API パラメーターや運用上の注意は `docs/scenarios.md` に一覧化しています。運用前に必ず確認してください。
+
+## API ドキュメント
+
+アプリケーション実行時、以下の URL で OpenAPI/Swagger ドキュメントにアクセスできます：
+- Swagger UI: `http://localhost:5000/swagger`
+- OpenAPI JSON: `http://localhost:5000/swagger/v1/swagger.json`
 
 ## 主なコード
 
 - `DiagnosticScenarios/Controllers/DiagnosticScenarios.cs`
   - DiagScenarioController - 即時実行シナリオ API。メモリリーク / スパイク処理をスレッド安全にリファクタリング済み。
+- `DiagnosticScenarios/Controllers/DirectTestController.cs`
+  - DirectTestController - 外部負荷ツール向けのシンプルな API エンドポイント（RandomLatency, RandomException, HighMem, HighCPU）。
 - `DiagnosticScenarios/Controllers/ScenarioToggleController.cs`
   - バックグラウンド実行シナリオの開始 / 停止エンドポイント。
 - `DiagnosticScenarios/Services/ScenarioToggleService.cs`

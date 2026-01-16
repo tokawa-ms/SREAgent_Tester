@@ -1,9 +1,13 @@
-﻿using DiagnosticScenarios.Services;
+﻿using System;
+using System.IO;
+using System.Reflection;
+using DiagnosticScenarios.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.OpenApi;
 
 namespace DiagnosticScenarios
 {
@@ -41,6 +45,30 @@ namespace DiagnosticScenarios
             services.AddHttpClient();
 
             services.AddSingleton<IScenarioToggleService, ScenarioToggleService>();
+
+            // Swagger/OpenAPIの構成
+            services.AddSwaggerGen(options =>
+            {
+                options.SwaggerDoc("v1", new OpenApiInfo
+                {
+                    Title = "SRE Agent Tester API",
+                    Version = "v1",
+                    Description = "SREエージェントのテストと検証のための診断シナリオAPI。" +
+                                  "負荷テスト、障害注入、リソース使用のシミュレーションが可能です。",
+                    Contact = new OpenApiContact
+                    {
+                        Name = "SRE Agent Tester Project"
+                    }
+                });
+
+                // XML コメントファイルのパスを設定
+                var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+                if (File.Exists(xmlPath))
+                {
+                    options.IncludeXmlComments(xmlPath);
+                }
+            });
         }
 
         /// <summary>
@@ -70,6 +98,15 @@ namespace DiagnosticScenarios
             app.UseRouting();
 
             app.UseAuthorization();
+
+            // Swagger UIを有効化
+            app.UseSwagger();
+            app.UseSwaggerUI(options =>
+            {
+                options.SwaggerEndpoint("/swagger/v1/swagger.json", "SRE Agent Tester API v1");
+                options.RoutePrefix = "swagger"; // /swagger でアクセス可能
+                options.DocumentTitle = "SRE Agent Tester API Documentation";
+            });
 
             app.UseEndpoints(endpoints =>
             {
