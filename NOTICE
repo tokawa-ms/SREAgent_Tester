@@ -1,0 +1,17 @@
+Attribution Notice
+
+This repository includes code adapted from:
+- Project: dotnet/samples
+- URL: https://github.com/dotnet/samples
+- License: Creative Commons Attribution 4.0 International (CC BY 4.0)
+  https://creativecommons.org/licenses/by/4.0/
+
+Changes made in this repository:
+- Modified and integrated into an ASP.NET Core .NET 8 diagnostic scenario app.
+- Refactored and extended controllers/services and UI for continuous toggle scenarios.
+- Adjusted configuration, hosting, and Docker assets to fit this project.
+
+Original code attribution and license notices must be retained where applicable.
+
+Original contributions in this repository (unless otherwise noted) are licensed under the MIT License.
+See LICENSE-MIT.
