@@ -359,7 +359,7 @@ curl "http://localhost:5000/api/DirectTest/RandomException?exceptionPercentage=1
   - 範囲: 1～2048
 
 **レスポンス:**
-- 成功時: `200 OK` - `"success:highmem (kept XXXMBfor YYY seconds)"`
+- 成功時: `200 OK` - `"success:highmem (kept XXXmb for YYY seconds)"`
 - エラー時: `400 Bad Request` - パラメータエラーメッセージ
 
 **使用例:**

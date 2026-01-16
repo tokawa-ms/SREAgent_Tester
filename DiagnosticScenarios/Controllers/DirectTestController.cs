@@ -15,6 +15,7 @@ namespace DiagnosticScenarios.Controllers
     [ApiController]
     public class DirectTestController : ControllerBase
     {
+        private const int BytesPerMegabyte = 1024 * 1024;
         private readonly ILogger<DirectTestController> _logger;
 
         /// <summary>
@@ -172,9 +173,9 @@ namespace DiagnosticScenarios.Controllers
                 keepMemSize,
                 secondsToKeepMem);
 
-            // メモリを確保（1MB = 1,048,576 バイト ≈ 1,000,000 バイト）
+            // メモリを確保（1MB = 1,048,576 バイト）
             // byte配列を使用してメモリを確保
-            var memoryHolder = new byte[keepMemSize * 1024 * 1024];
+            var memoryHolder = new byte[keepMemSize * BytesPerMegabyte];
 
             // メモリを初期化してコンパイラによる最適化を防ぐ
             for (int i = 0; i < memoryHolder.Length; i += 4096)
@@ -235,7 +236,8 @@ namespace DiagnosticScenarios.Controllers
             {
                 // CPU集約的な計算を実行
                 // 空のループだと最適化される可能性があるため、簡単な計算を入れる
-                var _ = Math.Sqrt(Random.Shared.NextDouble());
+                // 計算結果は破棄されるが、コンパイラの最適化を防ぐ目的で実行
+                Math.Sqrt(Random.Shared.NextDouble());
             }
 
             stopwatch.Stop();
