@@ -1,4 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Localization;
+using DiagnosticScenarios.Resources;
 
 namespace DiagnosticScenarios.Controllers
 {

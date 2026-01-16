@@ -1,18 +1,21 @@
+@using Microsoft.Extensions.Localization
+@inject IHtmlLocalizer<DiagnosticScenarios.Resources.SharedResources> Localizer
+
 @{
-    ViewData["Title"] = "継続的負荷テスト";
+    ViewData["Title"] = Localizer["ToggleScenarios.Title"];
 }
 
 <div class="container py-3">
     <div class="d-flex align-items-center justify-content-between mb-3">
-        <h1 class="h3 mb-0">継続的負荷テスト</h1>
+        <h1 class="h3 mb-0">@Localizer["ToggleScenarios.Title"]</h1>
     </div>
-    <p class="text-muted mb-4">各カードのトグルをオンにすると負荷シナリオがバックグラウンドで開始され、指定した時間経過後に自動停止します。</p>
+    <p class="text-muted mb-4">@Localizer["ToggleScenarios.Description"]</p>
 
     <div class="row g-3">
         <div class="col-lg-6">
             <div class="card h-100" data-scenario="ProbabilisticFailure">
                 <div class="card-header d-flex justify-content-between align-items-center">
-                    <span>[PF] 確率的失敗ロード</span>
+                    <span>@Localizer["ToggleScenarios.ProbabilisticFailure"]</span>
                     <div class="form-check form-switch m-0">
                         <input class="form-check-input scenario-toggle" type="checkbox" id="toggle-ProbabilisticFailure" data-scenario="ProbabilisticFailure">
                     </div>
@@ -20,19 +23,19 @@
                 <div class="card-body">
                     <form id="form-ProbabilisticFailure" class="scenario-form">
                         <div class="mb-2">
-                            <label class="form-label">継続時間 (分)</label>
+                            <label class="form-label">@Localizer["ToggleScenarios.DurationMinutes"]</label>
                             <input class="form-control" type="number" name="durationMinutes" value="1" min="1" max="180" required>
                         </div>
                         <div class="mb-2">
-                            <label class="form-label">1秒あたりのアクセス数</label>
+                            <label class="form-label">@Localizer["ToggleScenarios.RequestsPerSecond"]</label>
                             <input class="form-control" type="number" name="requestsPerSecond" value="10" min="1" max="1000" required>
                         </div>
                         <div class="mb-2">
-                            <label class="form-label">失敗率 (%)</label>
+                            <label class="form-label">@Localizer["ToggleScenarios.FailurePercentage"]</label>
                             <input class="form-control" type="number" name="failurePercentage" value="10" min="0" max="100" required>
                         </div>
                     </form>
-                    <div class="small text-muted" id="status-ProbabilisticFailure">停止中</div>
+                    <div class="small text-muted" id="status-ProbabilisticFailure">@Localizer["Common.Stopped"]</div>
                 </div>
             </div>
         </div>
@@ -40,7 +43,7 @@
         <div class="col-lg-6">
             <div class="card h-100" data-scenario="CpuSpike">
                 <div class="card-header d-flex justify-content-between align-items-center">
-                    <span>[CPU] CPU スパイク</span>
+                    <span>@Localizer["ToggleScenarios.CpuSpike"]</span>
                     <div class="form-check form-switch m-0">
                         <input class="form-check-input scenario-toggle" type="checkbox" id="toggle-CpuSpike" data-scenario="CpuSpike">
                     </div>
@@ -48,23 +51,23 @@
                 <div class="card-body">
                     <form id="form-CpuSpike" class="scenario-form">
                         <div class="mb-2">
-                            <label class="form-label">継続時間 (分)</label>
+                            <label class="form-label">@Localizer["ToggleScenarios.DurationMinutes"]</label>
                             <input class="form-control" type="number" name="durationMinutes" value="1" min="1" max="180" required>
                         </div>
                         <div class="mb-2">
-                            <label class="form-label">抽選間隔 (秒)</label>
+                            <label class="form-label">@Localizer["ToggleScenarios.IntervalSeconds"]</label>
                             <input class="form-control" type="number" name="intervalSeconds" value="10" min="1" max="300" required>
                         </div>
                         <div class="mb-2">
-                            <label class="form-label">当選率 (%)</label>
+                            <label class="form-label">@Localizer["ToggleScenarios.TriggerPercentage"]</label>
                             <input class="form-control" type="number" name="triggerPercentage" value="30" min="0" max="100" required>
                         </div>
                         <div class="mb-2">
-                            <label class="form-label">スパイク時間 (秒)</label>
+                            <label class="form-label">@Localizer["ToggleScenarios.SpikeSeconds"]</label>
                             <input class="form-control" type="number" name="spikeSeconds" value="5" min="1" max="30" required>
                         </div>
                     </form>
-                    <div class="small text-muted" id="status-CpuSpike">停止中</div>
+                    <div class="small text-muted" id="status-CpuSpike">@Localizer["Common.Stopped"]</div>
                 </div>
             </div>
         </div>
@@ -72,7 +75,7 @@
         <div class="col-lg-6">
             <div class="card h-100" data-scenario="MemoryLeak">
                 <div class="card-header d-flex justify-content-between align-items-center">
-                    <span>[MEM] メモリリーク</span>
+                    <span>@Localizer["ToggleScenarios.MemoryLeak"]</span>
                     <div class="form-check form-switch m-0">
                         <input class="form-check-input scenario-toggle" type="checkbox" id="toggle-MemoryLeak" data-scenario="MemoryLeak">
                     </div>
@@ -80,27 +83,27 @@
                 <div class="card-body">
                     <form id="form-MemoryLeak" class="scenario-form">
                         <div class="mb-2">
-                            <label class="form-label">継続時間 (分)</label>
+                            <label class="form-label">@Localizer["ToggleScenarios.DurationMinutes"]</label>
                             <input class="form-control" type="number" name="durationMinutes" value="1" min="1" max="180" required>
                         </div>
                         <div class="mb-2">
-                            <label class="form-label">抽選間隔 (秒)</label>
+                            <label class="form-label">@Localizer["ToggleScenarios.IntervalSeconds"]</label>
                             <input class="form-control" type="number" name="intervalSeconds" value="5" min="1" max="300" required>
                         </div>
                         <div class="mb-2">
-                            <label class="form-label">当選率 (%)</label>
+                            <label class="form-label">@Localizer["ToggleScenarios.TriggerPercentage"]</label>
                             <input class="form-control" type="number" name="triggerPercentage" value="20" min="0" max="100" required>
                         </div>
                         <div class="mb-2">
-                            <label class="form-label">リークサイズ (MB)</label>
+                            <label class="form-label">@Localizer["ToggleScenarios.MemoryMegabytes"]</label>
                             <input class="form-control" type="number" name="memoryMegabytes" value="100" min="1" max="1024" required>
                         </div>
                         <div class="mb-2">
-                            <label class="form-label">保持時間 (秒)</label>
+                            <label class="form-label">@Localizer["ToggleScenarios.HoldSeconds"]</label>
                             <input class="form-control" type="number" name="holdSeconds" value="10" min="1" max="60" required>
                         </div>
                     </form>
-                    <div class="small text-muted" id="status-MemoryLeak">停止中</div>
+                    <div class="small text-muted" id="status-MemoryLeak">@Localizer["Common.Stopped"]</div>
                 </div>
             </div>
         </div>
@@ -108,7 +111,7 @@
         <div class="col-lg-6">
             <div class="card h-100" data-scenario="ProbabilisticLatency">
                 <div class="card-header d-flex justify-content-between align-items-center">
-                    <span>[DELAY] 確率的遅延</span>
+                    <span>@Localizer["ToggleScenarios.ProbabilisticLatency"]</span>
                     <div class="form-check form-switch m-0">
                         <input class="form-check-input scenario-toggle" type="checkbox" id="toggle-ProbabilisticLatency" data-scenario="ProbabilisticLatency">
                     </div>
@@ -116,30 +119,30 @@
                 <div class="card-body">
                     <form id="form-ProbabilisticLatency" class="scenario-form">
                         <div class="mb-2">
-                            <label class="form-label">継続時間 (分)</label>
+                            <label class="form-label">@Localizer["ToggleScenarios.DurationMinutes"]</label>
                             <input class="form-control" type="number" name="durationMinutes" value="1" min="1" max="180" required>
                         </div>
                         <div class="mb-2">
-                            <label class="form-label">1秒あたりのアクセス数</label>
+                            <label class="form-label">@Localizer["ToggleScenarios.RequestsPerSecond"]</label>
                             <input class="form-control" type="number" name="requestsPerSecond" value="10" min="1" max="1000" required>
                         </div>
                         <div class="mb-2">
-                            <label class="form-label">遅延発生率 (%)</label>
+                            <label class="form-label">@Localizer["ToggleScenarios.TriggerPercentage"]</label>
                             <input class="form-control" type="number" name="triggerPercentage" value="40" min="0" max="100" required>
                         </div>
                         <div class="mb-2">
-                            <label class="form-label">遅延時間 (ms)</label>
+                            <label class="form-label">@Localizer["ToggleScenarios.DelayMilliseconds"]</label>
                             <input class="form-control" type="number" name="delayMilliseconds" value="500" min="1" max="10000" required>
                         </div>
                     </form>
-                    <div class="small text-muted" id="status-ProbabilisticLatency">停止中</div>
+                    <div class="small text-muted" id="status-ProbabilisticLatency">@Localizer["Common.Stopped"]</div>
                 </div>
             </div>
         </div>
     </div>
 
     <div class="alert alert-warning mt-4">
-        <strong>注意:</strong> これらのシナリオはテスト用途です。環境のリソース状況に応じて値を調整してください。
+        <strong>@Localizer["Common.Warning"]:</strong> @Localizer["ToggleScenarios.Warning"]
     </div>
 </div>
 
@@ -180,7 +183,7 @@
                     }
                     await refreshStatuses();
                 } catch (error) {
-                    alert(`エラー: ${error.message}`);
+                    alert(`@Localizer["Common.Error"]: ${error.message}`);
                     event.target.checked = !event.target.checked;
                 } finally {
                     event.target.disabled = false;
@@ -205,7 +208,7 @@
 
             if (!response.ok) {
                 const message = await response.text();
-                throw new Error(message || '開始に失敗しました');
+                throw new Error(message || 'Failed to start');
             }
         }
 
@@ -213,7 +216,7 @@
             const response = await fetch(scenarioEndpoints[scenario].stop, { method: 'POST' });
             if (!response.ok) {
                 const message = await response.text();
-                throw new Error(message || '停止に失敗しました');
+                throw new Error(message || 'Failed to stop');
             }
         }
 
@@ -221,7 +224,7 @@
             try {
                 const response = await fetch('/api/ScenarioToggle/status');
                 if (!response.ok) {
-                    throw new Error('ステータス取得に失敗しました');
+                    throw new Error('Failed to get status');
                 }
 
                 const statuses = await response.json();
@@ -239,10 +242,10 @@
             }
 
             toggle.checked = status.isActive;
-            let message = status.lastMessage || '停止中';
+            let message = status.lastMessage || '@Localizer["Common.Stopped"]';
             if (status.isActive && status.endsAtUtc) {
                 const localTime = new Date(status.endsAtUtc).toLocaleTimeString();
-                message = `稼働中 (自動停止予定: ${localTime})`;
+                message = `@Localizer["Common.Active"] (${localTime})`;
             }
 
             statusLabel.textContent = message;

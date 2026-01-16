@@ -1,3 +1,5 @@
+[English](./directtest-api-en.md) | 日本語
+
 # DirectTest API - 外部負荷ツール向けエンドポイント
 
 このドキュメントでは、JMeterなどの外部負荷テストツールから直接呼び出すことを想定したDirectTest APIの詳細を説明します。
