@@ -21,7 +21,7 @@ SREAgent_Testerは、SRE（Site Reliability Engineering）ツールやモニタ�
 SREAgent_Tester/
 ├── DiagnosticScenarios/          # メインアプリケーション
 │   ├── Controllers/              # API エンドポイント
-│   │   ├── DiagScenarioController.cs      # 即座実行型シナリオ
+│   │   ├── DiagnosticScenarios.cs          # DiagScenarioController - 即座実行型シナリオ
 │   │   ├── ScenarioToggleController.cs    # トグル型シナリオ
 │   │   └── HomeController.cs              # UI コントローラー
 │   ├── Services/                 # ビジネスロジック
@@ -261,7 +261,7 @@ public async Task<ActionResult<string>> MemSpike(int seconds, CancellationToken 
 
 新しい即座実行型シナリオを追加する手順：
 
-1. `DiagScenarioController`に新しいアクションメソッドを追加
+1. `DiagScenarioController`（DiagnosticScenarios.cs）に新しいアクションメソッドを追加
 2. ルート属性を設定
 3. パラメータ検証を実装
 4. ドキュメントを更新

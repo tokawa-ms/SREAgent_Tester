@@ -1,66 +1,61 @@
 # SRE Agent Tester
 
-.NET 8 / ASP.NET Core ‚Å\’z‚µ‚½f’fƒVƒiƒŠƒIW‚Å‚·B`/Home/Index` ‚©‚ç‘¦ŽžŽÀsƒVƒiƒŠƒIA`/Home/ToggleScenarios` ‚©‚çƒoƒbƒNƒOƒ‰ƒEƒ“ƒh‚Å“®‚«‘±‚¯‚éŒp‘±“I‚ÈƒeƒXƒgƒVƒiƒŠƒI‚ð§Œä‚µASRE Agent ‚âƒ‚ƒjƒ^ƒŠƒ“ƒOƒpƒCƒvƒ‰ƒCƒ“‚ðˆÀ‘S‚ÉŒŸØ‚Å‚«‚Ü‚·B
+.NET 8 / ASP.NET Core ã§æ§‹ç¯‰ã—ãŸè¨ºæ–­ã‚·ãƒŠã ƒª ã‚ªé› ? ã§ã™ã € ‚`/Home/Index` ã‹ã‚‰å³æ™‚å®Ÿè¡Œã‚·ãƒŠãƒªã‚ªã€`/Home/ToggleScenarios` ã‹ã‚‰ãƒãƒƒã‚¯ã‚°ãƒ©ã‚¦ãƒ³ãƒ‰ã§å‹•ãç¶šã‘ã‚‹ç¶™ç¶šçš„ãªãƒ ? ã‚¹ãƒˆã‚·ãƒŠã ƒª ã‚ªã‚’åˆ¶å¾¡ã—ã € S RE Agent ã‚ ? ãƒ¢ãƒ‹ã‚¿ãƒªãƒ³ã‚°ãƒ‘ã‚¤ãƒ—ã ƒ© ã‚¤ãƒ³ã‚’å®‰å ? ¨ã«æ¤œè¨¼ã§ãã ¾ ã™ã €?
 
-## ƒZƒbƒgƒAƒbƒv
+## ã‚»ãƒ ? ãƒˆã‚¢ãƒ ? ãƒ ?
 
-1. ƒŠƒ|ƒWƒgƒŠ‚ðƒNƒ[ƒ“‚µAƒvƒƒWƒFƒNƒgƒ‹[ƒg (`SREAgent_Tester`) ‚ÖˆÚ“®‚µ‚Ü‚·B
-2. ˆË‘¶ŠÖŒW‚ð•œŒ³‚µƒrƒ‹ƒh‚µ‚Ü‚·B
+1. ãƒªãƒã‚¸ãƒˆã ƒª ã‚’ã‚¯ãƒ­ãƒ¼ãƒ³ã—ã €ã? —ã ƒ­ ã‚¸ã‚§ã‚¯ãƒˆã ƒ« ãƒ¼ãƒ ? (`SREAgent_Tester`) ã¸ç§»å‹•ã—ã¾ã™ã €?
+2. ä¾å­˜é–¢ä¿‚ã‚’å¾©å… ? ã—ãƒ“ãƒ«ãƒ‰ã—ã¾ã™ã €?
    ```bash
    dotnet restore
    dotnet build
    ```
-3. ƒAƒvƒŠ‚ð‹N“®‚µ‚Ü‚·B
+3. ã‚¢ãƒ—ã ƒª ã‚’èµ·å‹•ã—ã¾ã™ã €?
    ```bash
    dotnet run --project DiagnosticScenarios/DiagnosticScenarios.csproj
    ```
-4. ƒuƒ‰ƒEƒU[‚Å `http://localhost:5000/` ‚ðŠJ‚«A–Ú“I‚Ìƒy[ƒW‚ÉƒAƒNƒZƒX‚µ‚Ü‚·B
+4. ãƒ–ã ƒ© ã‚¦ã‚¶ãƒ¼ã§ `http://localhost:5000/` ã‚’é–‹ãã €ç ›®çš ? ã®ãƒšã ? ¼ã‚¸ã«ã‚¢ã‚¯ã‚»ã‚¹ã—ã ¾ ã™ã €?
 
-Docker / Azure App Service ‚È‚Ç‚ÌƒzƒXƒeƒBƒ“ƒO‚à]—ˆ’Ê‚è—˜—p‰Â”\‚Å‚·B
+Docker / Azure App Service ãªã©ã®ãƒ›ã‚¹ãƒ ? ã‚£ãƒ³ã‚°ã‚‚å¾“æ¥é€šã‚Šåˆ©ç”¨å¯èƒ½ã§ã™ã €?
 
-### Docker ƒRƒ“ƒeƒi‚Å‚ÌŽÀs
+### Docker ã‚³ãƒ³ãƒ ? ãƒŠã§ã®å®Ÿè¡?
 
-1. ƒ‹[ƒg‚Å Docker ƒCƒ[ƒW‚ðƒrƒ‹ƒh‚µ‚Ü‚·B
+1. ãƒ«ãƒ¼ãƒˆã§ Docker ã‚¤ãƒ¡ãƒ¼ã‚¸ã‚’ãƒ“ãƒ«ãƒ‰ã—ã¾ã™ã €?
    ```bash
    docker build -t sre-agent-tester .
    ```
-2. ƒ|[ƒg‚ðƒzƒXƒg‚ÉŒöŠJ‚µ‚Ä‹N“®‚µ‚Ü‚· (—á: 8080)B
+2. ãƒã ? ¼ãƒˆã‚’ãƒ›ã‚¹ãƒˆã « å…¬é–‹ã—ã¦èµ·å‹•ã—ã¾ã ? (ä¾ ?: 8080)ã€ ?
    ```bash
    docker run --rm -p 8080:8080 -e ASPNETCORE_URLS=http://+:8080 sre-agent-tester
    ```
-   - HTTPS ‚ª•s—v‚È‚½‚ß `ASPNETCORE_URLS` ‚Å HTTP ƒ|[ƒg‚Ì‚ÝŒöŠJB
-   - Šù’è‚Ì `appsettings.Development.json` ‚ðŽg‚¤ê‡‚Í `--env ASPNETCORE_ENVIRONMENT=Development` ‚ð•t—^‚µ‚Ü‚·B
-3. •¡”ƒRƒ“ƒeƒi‚âˆË‘¶ƒT[ƒrƒX‚ª‚ ‚é‚È‚ç `docker-compose up -d` ‚Å“¯«‚Ì Compose ’è‹`‚ð—˜—p‚Å‚«‚Ü‚·B
+   - HTTPS ãŒä¸è¦ ãª ãŸã‚ `ASPNETCORE_URLS` ã§ HTTP ãƒã ? ¼ãƒˆã ? ®ã¿å…¬é–‹ã €?
+   - æ—¢å®šã ? ® `appsettings.Development.json` ã‚’ä½¿ã ? å ´åˆã ? ¯ `--env ASPNETCORE_ENVIRONMENT=Development` ã‚’ä»˜ä¸Žã—ã¾ã™ã €?
+3. è¤ ? æ•°ã‚³ãƒ³ãƒ ? ãƒŠã‚„ä¾å­˜ã‚µãƒ¼ãƒ“ã‚¹ãŒã ‚ ã‚‹ã ª ã‚ ? `docker-compose up -d` ã§åŒæ¢±ã® Compose å®šç¾©ã‚’åˆ©ç”¨ã§ãã ¾ ã™ã €?
 
-’âŽ~‚·‚éÛ‚Í `Ctrl+C` ‚ÅI—¹‚·‚é‚©A•Êƒ^[ƒ~ƒiƒ‹‚©‚ç `docker stop <CONTAINER_ID>` ‚ðŽÀs‚µ‚Ä‚­‚¾‚³‚¢B
+åœæ­¢ã™ã‚‹éš›ã ? ¯ `Ctrl+C` ã§çµ‚äº ? ã™ã‚‹ã‹ã €å ˆ¥ã‚¿ãƒ¼ãƒŸãƒŠãƒ«ã‹ã‚‰ `docker stop <CONTAINER_ID>` ã‚’å®Ÿè¡Œã—ã¦ãã   ã•ã„ã€ ?
 
-## UI ‚ÆƒVƒiƒŠƒI
+## UI ã¨ã‚·ãƒŠã ƒª ã‚ª
 
-- `Home/Index` : —áŠOƒo[ƒXƒgAƒƒ‚ƒŠƒXƒpƒCƒNACPU ‚•‰‰×‚È‚Ç‘¦Žž”­‰Î‚·‚é API ‚ðŒÄ‚Ño‚·ƒfƒ‚ƒJ[ƒhB
-- `Home/ToggleScenarios` : ProbabilisticFailure / CpuSpike / MemoryLeak / ProbabilisticLatency ‚ðƒgƒOƒ‹‚ÅŠJŽn‚µAI—¹—\’èŽž‚âŽÀsó‘Ô‚ðŠm”F‚Å‚«‚Ü‚·B
+- `Home/Index` : ä¾‹å¤–ãƒãƒ¼ã‚¹ãƒˆã €ãƒ¡ ãƒ¢ãƒªã‚¹ãƒ‘ã‚¤ã‚¯ã€CPU é«˜è² ? è·ãªã©å³æ™‚ç™ºç«ã™ã‚‹ API ã‚’å‘¼ã³å‡ºã™ãƒ‡ãƒ¢ã‚«ãƒ¼ãƒ‰ã €?
+- `Home/ToggleScenarios` : ProbabilisticFailure / CpuSpike / MemoryLeak / ProbabilisticLatency ã‚’ãƒˆã‚°ãƒ«ã§é–‹å§‹ã—ã€ ç µ‚äº ? äºˆå®šæ™‚åˆ»ã‚ ? å®Ÿè¡ŒçŠ¶æ…‹ã‚’ç¢ºèªã§ãã ¾ ã™ã €?
 
-ŠeƒVƒiƒŠƒI‚Ì APIAƒpƒ‰ƒ[ƒ^[A—˜—pã‚Ì’ˆÓ‚Í `docs/scenarios.md` ‚Éˆê——‰»‚µ‚Ä‚¢‚Ü‚·B‰^—p‘O‚É•K‚¸Šm”F‚µ‚Ä‚­‚¾‚³‚¢B
+å ? ã‚·ãƒŠã ƒª ã‚ªã® API ã€ ã ƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿ãƒ¼ã€ å ˆ©ç”¨ä¸Šã ? ®æ³¨æ„ã ? ¯ `docs/scenarios.md` ã«ä¸ € è¦§åŒ–ã—ã¦ã ? ã¾ã™ã € ‚é ‹ ç”¨å‰ã « å¿ ? ãšç¢ºèªã—ã¦ãã   ã•ã„ã€ ?
 
-## Žå‚ÈƒR[ƒh
+## ä¸»ãªã‚³ãƒ¼ãƒ ?
 
-- `DiagnosticScenarios/Controllers/DiagScenarioController.cs`
-  - ‘¦ŽžŽÀsƒVƒiƒŠƒI APIBƒƒ‚ƒŠƒŠ[ƒN‚âƒXƒpƒCƒNˆ—‚ðƒXƒŒƒbƒhˆÀ‘S‚ÉƒŠƒtƒ@ƒNƒ^ƒŠƒ“ƒOÏ‚ÝB
+- `DiagnosticScenarios/Controllers/DiagnosticScenarios.cs`
+  - DiagScenarioController - å³æ™‚å®Ÿè¡Œã‚·ãƒŠã ƒª ã‚ª API ã€‚ã ƒ¡ ãƒ¢ãƒªãƒªãƒ¼ã‚¯ã‚ ? ã‚¹ãƒ‘ã‚¤ã‚¯å‡¦ç ? ã‚’ã‚¹ãƒ¬ãƒ ? ãƒ‰å®‰å ? ¨ã«ãƒªãƒ•ã‚¡ã‚¯ã‚¿ãƒªãƒ³ã‚°æ¸ˆã ¿ ã€ ?
 - `DiagnosticScenarios/Controllers/ScenarioToggleController.cs`
-  - ƒoƒbƒNƒOƒ‰ƒEƒ“ƒhŽÀsƒVƒiƒŠƒI‚ÌŠJŽn / ’âŽ~ƒGƒ“ƒhƒ|ƒCƒ“ƒgB
+  - ãƒãƒƒã‚¯ã‚°ãƒ©ã‚¦ãƒ³ãƒ‰å®Ÿè¡Œã‚·ãƒŠã ƒª ã‚ªã®é–‹å§ ? / åœæ­¢ã‚¨ãƒ³ãƒ‰ã ? ã‚¤ãƒ³ãƒˆã €?
 - `DiagnosticScenarios/Services/ScenarioToggleService.cs`
-  - ŠeƒgƒOƒ‹ƒVƒiƒŠƒI‚Ìƒ[ƒJ[ƒ‹[ƒvEó‘ÔŠÇ—‚ðŽÀ‘•B
+  - å ? ãƒˆã‚°ãƒ«ã‚·ãƒŠã ƒª ã‚ªã®ãƒ¯ãƒ¼ã‚«ãƒ¼ãƒ«ãƒ¼ãƒ—ã ? »çŠ¶æ…‹ç®¡ç ? ã‚’å®Ÿè£? ã€ ?
 
-## ’ˆÓŽ–€
+## æ³¨æ„äº‹é ??
 
-- ‚·‚×‚ÄƒeƒXƒg / ŒŸØŠÂ‹«ê—p‚Å‚·B**–{”ÔŠÂ‹«‚Å‚Íâ‘Î‚ÉŽÀs‚µ‚È‚¢‚Å‚­‚¾‚³‚¢B**
-- ‘z’èˆÈã‚Ì•‰‰×‚ð”ð‚¯‚é‚½‚ßAƒpƒ‰ƒ[ƒ^[‚ÍŠÂ‹«‚Ì CPU / ƒƒ‚ƒŠ‚É‰ž‚¶‚Ä’²®‚µ‚Ä‚­‚¾‚³‚¢B
-- ŽÀs’†‚Í `dotnet-counters`, `dotnet-trace` ‚È‚Ç‚Åƒ‰ƒ“ƒ^ƒCƒ€Žw•W‚ðÌŽæ‚·‚é‚ÆŒø‰Ê“I‚Å‚·B
+- ã™ã ¹ ã¦ãƒ ? ã‚¹ãƒ ? / æ¤œè¨¼ç’°å¢ ? å°‚ç”¨ã§ã™ã €?**æœ¬ç•ªç’°å¢ ? ã§ã¯çµ¶å¯¾ã«å®Ÿè¡Œã—ãªã ? ã§ãã   ã•ã„ã€ ?**
+- æƒ³å®šä»¥ä¸Šã ? ®è² ? è·ã‚’é ¿ ã‘ã‚‹ãŸã‚ã€ ã ƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿ãƒ¼ã¯ç’°å¢ ? ã® CPU / ãƒ¡ãƒ¢ãƒªã«å¿œã˜ã¦èª¿æ•´ã—ã¦ãã   ã•ã„ã€ ?
+- å®Ÿè¡Œä¸­ã¯ `dotnet-counters`, `dotnet-trace` ãªã©ã§ãƒ©ãƒ³ã‚¿ã‚¤ãƒ ? æŒ ? æ¨™ã‚’æŽ¡å–ã ™ ã‚‹ã ¨ åŠ¹æžœçš„ã§ã™ã €?
 
-## ŽQl
+## å‚è €?
 
-‚±‚ÌƒAƒvƒŠ‚Í [Diagnostic scenarios sample debug target](https://github.com/dotnet/samples/tree/main/core/diagnostics/DiagnosticScenarios) ‚ðƒx[ƒX‚ÉƒJƒXƒ^ƒ}ƒCƒY‚µ‚Ä‚¢‚Ü‚·B
-
-## ƒ‰ƒCƒZƒ“ƒX / ‹A‘®
-
-- dotnet/samples —R—ˆ‚ÌƒR[ƒh‚Í Creative Commons Attribution 4.0 International (CC BY 4.0) ‚É]‚¢‚Ü‚·BÚ×‚Í [LICENSE](LICENSE) ‚ðŽQÆ‚µ‚Ä‚­‚¾‚³‚¢B
-- –{ƒŠƒ|ƒWƒgƒŠ‚ÌƒIƒŠƒWƒiƒ‹•”•ª‚Í MIT License ‚ð“K—p‚µ‚Ä‚¢‚Ü‚·BÚ×‚Í [LICENSE-MIT](LICENSE-MIT) ‚ðŽQÆ‚µ‚Ä‚­‚¾‚³‚¢B
+ã“ã ? ®ã‚¢ãƒ—ã ƒª ã¯ [Diagnostic scenarios sample debug target](https://github.com/dotnet/samples/tree/main/core/diagnostics/DiagnosticScenarios) ã‚’ã ? ™ã ? ¼ã‚¹ã«ã‚«ã‚¹ã‚¿ãƒžã‚¤ã‚ºã—ã¦ã ? ã¾ã™ã €?
