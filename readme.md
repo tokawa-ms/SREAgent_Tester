@@ -1,6 +1,7 @@
 # SRE Agent Tester
 
 .NET 8 / ASP.NET Core で構築した診断シナリオアプリです。`/Home/Index` から即時実行シナリオ、`/Home/ToggleScenarios` からバックグラウンドで動き続ける継続的なテストシナリオを制御し、SRE Agent のモニタリングパイプラインを安全に検証できます。
+また /swagger から API ドキュメントを確認し、直接 API に負荷をかけるようなテストも実施可能です。
 
 ## セットアップ
 
