@@ -90,3 +90,14 @@ footer {
 .loading {
     animation: pulse 1.5s ease-in-out infinite;
 }
+
+/* トグルスイッチの視認性向上 */
+.card-header .form-check-input {
+    background-color: rgba(255, 255, 255, 0.3);
+    border: 2px solid rgba(255, 255, 255, 0.8);
+}
+
+.card-header .form-check-input:checked {
+    background-color: white;
+    border-color: white;
+}
