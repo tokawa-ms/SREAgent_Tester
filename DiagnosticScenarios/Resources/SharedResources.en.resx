@@ -1,0 +1,309 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  
+  <!-- Navigation -->
+  <data name="Nav.Title" xml:space="preserve">
+    <value>Diagnostic Scenario Tester</value>
+  </data>
+  <data name="Nav.Home" xml:space="preserve">
+    <value>Home</value>
+  </data>
+  <data name="Nav.ToggleScenarios" xml:space="preserve">
+    <value>Continuous Load Test</value>
+  </data>
+  <data name="Nav.ApiDocs" xml:space="preserve">
+    <value>API Documentation</value>
+  </data>
+  
+  <!-- Common -->
+  <data name="Common.Warning" xml:space="preserve">
+    <value>Warning</value>
+  </data>
+  <data name="Common.Error" xml:space="preserve">
+    <value>Error</value>
+  </data>
+  <data name="Common.Success" xml:space="preserve">
+    <value>Success</value>
+  </data>
+  <data name="Common.Execute" xml:space="preserve">
+    <value>Execute</value>
+  </data>
+  <data name="Common.Running" xml:space="preserve">
+    <value>Running...</value>
+  </data>
+  <data name="Common.Stopped" xml:space="preserve">
+    <value>Stopped</value>
+  </data>
+  <data name="Common.Active" xml:space="preserve">
+    <value>Active</value>
+  </data>
+  
+  <!-- Home Page -->
+  <data name="Home.Title" xml:space="preserve">
+    <value>Home</value>
+  </data>
+  <data name="Home.PageTitle" xml:space="preserve">
+    <value>Diagnostic Scenario Tester</value>
+  </data>
+  <data name="Home.WarningMessage" xml:space="preserve">
+    <value>These scenarios should only be run in development/test environments. Never execute them in production.</value>
+  </data>
+  
+  <!-- Exception Burst -->
+  <data name="ExceptionBurst.Title" xml:space="preserve">
+    <value>Exception Burst</value>
+  </data>
+  <data name="ExceptionBurst.Description" xml:space="preserve">
+    <value>Generates exceptions at a specified rate per second for a specified duration.</value>
+  </data>
+  <data name="ExceptionBurst.Seconds" xml:space="preserve">
+    <value>Seconds</value>
+  </data>
+  <data name="ExceptionBurst.PerSecond" xml:space="preserve">
+    <value>Per second</value>
+  </data>
+  <data name="ExceptionBurst.Times" xml:space="preserve">
+    <value>times</value>
+  </data>
+  <data name="ExceptionBurst.Execute" xml:space="preserve">
+    <value>Execute Exception Burst</value>
+  </data>
+  
+  <!-- Probabilistic Load -->
+  <data name="ProbabilisticLoad.Title" xml:space="preserve">
+    <value>Probabilistic Exception Load</value>
+  </data>
+  <data name="ProbabilisticLoad.Description" xml:space="preserve">
+    <value>Executes M backend calls per second for N seconds, throwing exceptions in X% of them.</value>
+  </data>
+  <data name="ProbabilisticLoad.Duration" xml:space="preserve">
+    <value>Duration</value>
+  </data>
+  <data name="ProbabilisticLoad.RequestsPerSecond" xml:space="preserve">
+    <value>Per second</value>
+  </data>
+  <data name="ProbabilisticLoad.Requests" xml:space="preserve">
+    <value>requests</value>
+  </data>
+  <data name="ProbabilisticLoad.ErrorRate" xml:space="preserve">
+    <value>Error rate</value>
+  </data>
+  <data name="ProbabilisticLoad.Execute" xml:space="preserve">
+    <value>Execute Probabilistic Load</value>
+  </data>
+  
+  <!-- Deadlock -->
+  <data name="Deadlock.Title" xml:space="preserve">
+    <value>Deadlock</value>
+  </data>
+  <data name="Deadlock.Description" xml:space="preserve">
+    <value>Simulates a deadlock situation. Creates a scenario where multiple threads wait for each other's locks.</value>
+  </data>
+  <data name="Deadlock.Execute" xml:space="preserve">
+    <value>Execute Deadlock</value>
+  </data>
+  
+  <!-- Memory Spike -->
+  <data name="MemorySpike.Title" xml:space="preserve">
+    <value>Memory Spike</value>
+  </data>
+  <data name="MemorySpike.Description" xml:space="preserve">
+    <value>Rapidly increases memory usage for a specified duration in seconds.</value>
+  </data>
+  <data name="MemorySpike.Execute" xml:space="preserve">
+    <value>Execute Memory Spike</value>
+  </data>
+  
+  <!-- Memory Leak -->
+  <data name="MemoryLeak.Title" xml:space="preserve">
+    <value>Memory Leak</value>
+  </data>
+  <data name="MemoryLeak.Description" xml:space="preserve">
+    <value>Simulates a memory leak of the specified size.</value>
+  </data>
+  <data name="MemoryLeak.KB" xml:space="preserve">
+    <value>KB</value>
+  </data>
+  <data name="MemoryLeak.Execute" xml:space="preserve">
+    <value>Execute Memory Leak</value>
+  </data>
+  
+  <!-- Exception -->
+  <data name="Exception.Title" xml:space="preserve">
+    <value>Exception</value>
+  </data>
+  <data name="Exception.Description" xml:space="preserve">
+    <value>Intentionally throws an exception to test error handling.</value>
+  </data>
+  <data name="Exception.Execute" xml:space="preserve">
+    <value>Execute Exception</value>
+  </data>
+  
+  <!-- High CPU -->
+  <data name="HighCpu.Title" xml:space="preserve">
+    <value>High CPU Usage</value>
+  </data>
+  <data name="HighCpu.Description" xml:space="preserve">
+    <value>Increases CPU usage to nearly 100% for the specified duration in milliseconds.</value>
+  </data>
+  <data name="HighCpu.Milliseconds" xml:space="preserve">
+    <value>Milliseconds</value>
+  </data>
+  <data name="HighCpu.Execute" xml:space="preserve">
+    <value>Execute High CPU</value>
+  </data>
+  
+  <!-- Task Wait -->
+  <data name="TaskWait.Title" xml:space="preserve">
+    <value>Task.Wait()</value>
+  </data>
+  <data name="TaskWait.Description" xml:space="preserve">
+    <value>Simulates thread pool starvation using Task.Wait().</value>
+  </data>
+  <data name="TaskWait.Execute" xml:space="preserve">
+    <value>Execute Task.Wait()</value>
+  </data>
+  
+  <!-- Task Sleep Wait -->
+  <data name="TaskSleepWait.Title" xml:space="preserve">
+    <value>Task Sleep Wait</value>
+  </data>
+  <data name="TaskSleepWait.Description" xml:space="preserve">
+    <value>Simulates an inefficient method of waiting for task completion using Thread.Sleep().</value>
+  </data>
+  <data name="TaskSleepWait.Execute" xml:space="preserve">
+    <value>Execute Task Sleep Wait</value>
+  </data>
+  
+  <!-- Task Async Wait -->
+  <data name="TaskAsyncWait.Title" xml:space="preserve">
+    <value>Task Async Wait (Correct)</value>
+  </data>
+  <data name="TaskAsyncWait.Description" xml:space="preserve">
+    <value>Executes an example of correct asynchronous processing using the await keyword.</value>
+  </data>
+  <data name="TaskAsyncWait.Execute" xml:space="preserve">
+    <value>Execute Task Async Wait</value>
+  </data>
+  
+  <!-- Toggle Scenarios Page -->
+  <data name="ToggleScenarios.Title" xml:space="preserve">
+    <value>Continuous Load Test</value>
+  </data>
+  <data name="ToggleScenarios.Description" xml:space="preserve">
+    <value>Toggle each card on to start the load scenario in the background, which will automatically stop after the specified time.</value>
+  </data>
+  <data name="ToggleScenarios.Warning" xml:space="preserve">
+    <value>These scenarios are for testing purposes. Adjust values according to your environment's resource situation.</value>
+  </data>
+  <data name="ToggleScenarios.ProbabilisticFailure" xml:space="preserve">
+    <value>[PF] Probabilistic Failure Load</value>
+  </data>
+  <data name="ToggleScenarios.CpuSpike" xml:space="preserve">
+    <value>[CPU] CPU Spike</value>
+  </data>
+  <data name="ToggleScenarios.MemoryLeak" xml:space="preserve">
+    <value>[MEM] Memory Leak</value>
+  </data>
+  <data name="ToggleScenarios.ProbabilisticLatency" xml:space="preserve">
+    <value>[DELAY] Probabilistic Latency</value>
+  </data>
+  <data name="ToggleScenarios.DurationMinutes" xml:space="preserve">
+    <value>Duration (minutes)</value>
+  </data>
+  <data name="ToggleScenarios.RequestsPerSecond" xml:space="preserve">
+    <value>Requests per second</value>
+  </data>
+  <data name="ToggleScenarios.FailurePercentage" xml:space="preserve">
+    <value>Failure rate (%)</value>
+  </data>
+  <data name="ToggleScenarios.IntervalSeconds" xml:space="preserve">
+    <value>Trigger interval (seconds)</value>
+  </data>
+  <data name="ToggleScenarios.TriggerPercentage" xml:space="preserve">
+    <value>Trigger rate (%)</value>
+  </data>
+  <data name="ToggleScenarios.SpikeSeconds" xml:space="preserve">
+    <value>Spike duration (seconds)</value>
+  </data>
+  <data name="ToggleScenarios.MemoryMegabytes" xml:space="preserve">
+    <value>Leak size (MB)</value>
+  </data>
+  <data name="ToggleScenarios.HoldSeconds" xml:space="preserve">
+    <value>Hold duration (seconds)</value>
+  </data>
+  <data name="ToggleScenarios.DelayMilliseconds" xml:space="preserve">
+    <value>Delay duration (ms)</value>
+  </data>
+  
+  <!-- Footer -->
+  <data name="Footer.Copyright" xml:space="preserve">
+    <value>&copy; 2025 - Diagnostic Scenario Tester</value>
+  </data>
+  
+  <!-- Language -->
+  <data name="Language.Japanese" xml:space="preserve">
+    <value>日本語</value>
+  </data>
+  <data name="Language.English" xml:space="preserve">
+    <value>English</value>
+  </data>
+</root>
