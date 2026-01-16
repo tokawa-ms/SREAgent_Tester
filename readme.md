@@ -64,3 +64,4 @@ Docker / Azure App Service などのホスティングも従来通り利用可�
 
 本リポジトリのライセンス情報は [LICENSE](LICENSE) と [LICENSE-MIT](LICENSE-MIT) を参照してください。
 dotnet/samples 由来のコードは CC BY 4.0、それ以外のオリジナルコードは MIT ライセンスです。
+出典・ライセンス URL・変更点の明示は [NOTICE](NOTICE) に記載しています。
