@@ -1,4 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Localization;
+using DiagnosticScenarios.Resources;
 
 namespace DiagnosticScenarios.Controllers
 {
@@ -8,6 +10,13 @@ namespace DiagnosticScenarios.Controllers
     /// </summary>
     public class HomeController : Controller
     {
+        private readonly IStringLocalizer<SharedResources> _localizer;
+
+        public HomeController(IStringLocalizer<SharedResources> localizer)
+        {
+            _localizer = localizer;
+        }
+
         /// <summary>
         /// トップページを表示します
         /// 即座実行型シナリオのUIを提供します
@@ -35,6 +44,18 @@ namespace DiagnosticScenarios.Controllers
         public IActionResult Error()
         {
             return View();
+        }
+
+        /// <summary>
+        /// ローカライゼーションのテスト用エンドポイント
+        /// </summary>
+        /// <returns>ローカライズされた文字列</returns>
+        [HttpGet("/test-localization")]
+        public IActionResult TestLocalization()
+        {
+            var title = _localizer["Nav.Title"];
+            var home = _localizer["Nav.Home"];
+            return Content($"Nav.Title = {title.Value}, Nav.Home = {home.Value}, ResourceNotFound: Title={title.ResourceNotFound}, Home={home.ResourceNotFound}");
         }
     }
 }
