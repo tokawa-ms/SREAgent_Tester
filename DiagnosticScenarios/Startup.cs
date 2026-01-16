@@ -43,7 +43,7 @@ namespace DiagnosticScenarios
         public void ConfigureServices(IServiceCollection services)
         {
             // ローカライゼーションサポートの追加
-            services.AddLocalization(options => options.ResourcesPath = "Resources");
+            services.AddLocalization();
             
             services.AddControllersWithViews()
                 .AddNewtonsoftJson()

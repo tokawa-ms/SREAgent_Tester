@@ -1,6 +1,6 @@
 @using Microsoft.AspNetCore.Mvc.Localization
-@inject IViewLocalizer Localizer
-@inject IStringLocalizer<DiagnosticScenarios.Resources.SharedResources> SharedLocalizer
+@using Microsoft.Extensions.Localization
+@inject IHtmlLocalizer<DiagnosticScenarios.Resources.SharedResources> SharedLocalizer
 
 <!DOCTYPE html>
 <html lang="ja">
@@ -42,17 +42,17 @@
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="languageDropdown">
                                 <li>
-                                    <form method="post" action="/Language/SetLanguage" class="dropdown-item">
+                                    <form method="post" action="/Language/SetLanguage" style="margin: 0;">
                                         <input type="hidden" name="culture" value="ja" />
                                         <input type="hidden" name="returnUrl" value="@Context.Request.Path" />
-                                        <button type="submit" class="btn btn-link text-decoration-none p-0 text-dark">@SharedLocalizer["Language.Japanese"]</button>
+                                        <button type="submit" class="dropdown-item" style="background: none; border: none; width: 100%; text-align: left; cursor: pointer;">@SharedLocalizer["Language.Japanese"]</button>
                                     </form>
                                 </li>
                                 <li>
-                                    <form method="post" action="/Language/SetLanguage" class="dropdown-item">
+                                    <form method="post" action="/Language/SetLanguage" style="margin: 0;">
                                         <input type="hidden" name="culture" value="en" />
                                         <input type="hidden" name="returnUrl" value="@Context.Request.Path" />
-                                        <button type="submit" class="btn btn-link text-decoration-none p-0 text-dark">@SharedLocalizer["Language.English"]</button>
+                                        <button type="submit" class="dropdown-item" style="background: none; border: none; width: 100%; text-align: left; cursor: pointer;">@SharedLocalizer["Language.English"]</button>
                                     </form>
                                 </li>
                             </ul>
@@ -72,7 +72,7 @@
     <footer class="bg-light mt-5 py-3">
         <div class="container">
             <div class="text-center text-muted">
-                <small>@Html.Raw(SharedLocalizer["Footer.Copyright"])</small>
+                <small>@SharedLocalizer["Footer.Copyright"]</small>
             </div>
         </div>
     </footer>

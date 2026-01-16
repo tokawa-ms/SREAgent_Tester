@@ -19,7 +19,8 @@ namespace DiagnosticScenarios.Controllers
         /// <param name="returnUrl">リダイレクト先URL（省略時はリファラーまたはホームページ）</param>
         /// <returns>指定されたURLへのリダイレクト</returns>
         [HttpPost("SetLanguage")]
-        public IActionResult SetLanguage(string culture, string? returnUrl = null)
+        [IgnoreAntiforgeryToken]
+        public IActionResult SetLanguage([FromForm] string culture, [FromForm] string? returnUrl = null)
         {
             if (string.IsNullOrEmpty(culture))
             {
